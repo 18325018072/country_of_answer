@@ -1,0 +1,29 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.countryBlackHeader {
+    color: white;
+    background-color: #181818;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-right {
+    justify-content: space-between;
+}
+
+.countryRed {
+    color: #d91f2f;
+    background-color: #d91f2f;
+}
+
+.logo {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+}
+
