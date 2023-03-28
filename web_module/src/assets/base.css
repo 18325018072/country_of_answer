@@ -3,17 +3,44 @@
     padding: 0;
 }
 
-.countryBlackHeader {
+body {
+    min-width: 1000px;
+    margin: 0;
+}
+
+.el-main {
+    display: flex;
+    justify-content: center;
+}
+
+.header {
     color: white;
     background-color: #181818;
-    height: 30px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
+.header-left a {
+    font-size: 25px;
+    text-decoration-line: none;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+
 .header-right {
+    font-size: 20px;
+    display: flex;
     justify-content: space-between;
+    align-items: center;
+}
+
+.header-right a {
+    margin-right: 25px;
+    text-decoration-line: none;
+    color: white;
 }
 
 .countryRed {
@@ -22,8 +49,8 @@
 }
 
 .logo {
-    width: 20px;
-    height: 20px;
-    margin-right: 5px;
+    width: 40px;
+    height: 40px;
+    margin-right: 8px;
 }
 
