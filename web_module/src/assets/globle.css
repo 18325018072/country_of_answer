@@ -3,7 +3,8 @@
     padding: 0;
 }
 
-body {
+html body {
+    height: 100%;
     min-width: 1000px;
     margin: 0;
 }
@@ -44,7 +45,6 @@ body {
 }
 
 .countryRed {
-    color: #d91f2f;
     background-color: #d91f2f;
 }
 

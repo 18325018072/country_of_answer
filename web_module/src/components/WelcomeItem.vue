@@ -1,4 +1,0 @@
-<template>
-  Welcome Item
-</template>
-

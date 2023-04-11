@@ -1,96 +1,90 @@
 <template>
   <div class="common-layout">
-    <el-container>
-      <!-- 首部 -->
-      <el-header class="header">
-        <div class="header-left">
-          <a href="/home" target="_blank"> <img src="/src/assets/countryLoge.png" class="logo" alt="答题国度logo"/>答题国度</a>
-        </div>
-        <div class="header-right">
-          <el-input v-model="searchText" class="w-50 m-2" placeholder="搜索试卷"
-                    :suffix-icon="Search" @keyup.enter="testF"/>
-          <a href="/home" target="_blank">登录/注册</a>
-        </div>
-      </el-header>
-      <!--正文-->
-      <el-main>
-        <!--左-->
-        <div id="left-part">
-          <!--左-走马灯-->
-          <el-carousel>
-            <el-carousel-item v-for="item in 4" :key="item">
-              <img src="../assets/carousel1.png" alt="走马灯展示图片"/>
-            </el-carousel-item>
-          </el-carousel>
-          <!--左-热门试题-->
-          <div class="content-box">
-            <div class="box-title">热门试题</div>
-            <div id="hot-test-box">
-              <a href="#" class="test-div" v-for="test in hotTests" @click="goTest(test)">
-                <div>
-                  <img src="./src/assets/easy.png" v-if="test.difficulty === 'easy'" alt="简单"/>
-                  <img src="../assets/middle.png" v-else-if="test.difficulty === 'middle'" alt="中等"/>
-                  <img src="./src/assets/hard.png" v-else alt="困难"/>
-                  {{ test.name }}
-                </div>
-                <div class="test-down">
-                  <span>{{ test.publisher }}</span>
-                  <span>{{ test.studyNum }}人参加</span>
-                </div>
-              </a>
-            </div>
+    <Head/>
+    <!--正文-->
+    <el-main>
+      <!--左-->
+      <div id="left-part">
+        <!--左-走马灯-->
+        <el-carousel>
+          <el-carousel-item>
+            <img src="../assets/ad1.png" alt="走马灯展示图片"/>
+          </el-carousel-item>
+          <el-carousel-item>
+            <img src="../assets/ad2.png" alt="走马灯展示图片"/>
+          </el-carousel-item>
+          <el-carousel-item>
+            <img src="../assets/ad3.png" alt="走马灯展示图片"/>
+          </el-carousel-item>
+        </el-carousel>
+        <!--左-热门试题-->
+        <div class="content-box">
+          <div class="box-title">热门试题</div>
+          <div id="hot-test-box">
+            <a href="#" class="test-div" v-for="test in hotTests" @click="goTest(test)">
+              <div>
+                <img src="./src/assets/easy.png" v-if="test.difficulty === 'easy'" alt="简单"/>
+                <img src="../assets/middle.png" v-else-if="test.difficulty === 'middle'" alt="中等"/>
+                <img src="./src/assets/hard.png" v-else alt="困难"/>
+                {{ test.name }}
+              </div>
+              <div class="test-down">
+                <span>{{ test.publisher }}</span>
+                <span>{{ test.studyNum }}人参加</span>
+              </div>
+            </a>
           </div>
         </div>
-        <!--右-->
-        <div id="right-part">
-          <!--右-最近答题-->
-          <div class="content-box">
-            <div class="box-title">最近答题</div>
-            <div id="text-list-box">
-              <a href="#" v-for="test in recentTests">
-                <div>{{ test.name }}</div>
-              </a>
-              <a href="#" v-if="recentTests.length >= 4">更多...</a>
-            </div>
-          </div>
-          <!--右-学习历史-->
-          <div class="content-box">
-            <div class="box-title">学习历史</div>
-            <el-calendar ref="calendar" v-model="value">
-              <template #header="{ date }">
-                <span>{{ date }}</span>
-                <el-button type="danger" @click="sigh">签到</el-button>
-              </template>
-              <template #date-cell="{ data }">
-                <p :class="isSigned(data)?'sighed':''">
-                  {{ data.day.split('-').slice(2).join('-') }}
-                </p>
-              </template>
-            </el-calendar>
-          </div>
-          <!--右-热门讨论-->
-          <div class="content-box">
-            <div class="box-title">热门讨论</div>
-            <div id="text-list-box">
-              <a href="#" v-for="dis in discussions">
-                <div>{{ dis.title }}</div>
-              </a>
-              <a href="#" v-if="recentTests.length >= 4">更多...</a>
-            </div>
+      </div>
+      <!--右-->
+      <div id="right-part">
+        <!--右-最近答题-->
+        <div class="content-box">
+          <div class="box-title">最近答题</div>
+          <div id="text-list-box">
+            <a href="#" v-for="test in recentTests">
+              <div>{{ test.name }}</div>
+            </a>
+            <a href="#" v-if="recentTests.length >= 4">更多...</a>
           </div>
         </div>
-      </el-main>
-    </el-container>
+        <!--右-学习历史-->
+        <div class="content-box">
+          <div class="box-title">学习历史</div>
+          <el-calendar ref="calendar" v-model="today">
+            <template #header="{ date }">
+              <span>{{ date }}</span>
+              <el-button class="countryRed" type="danger" @click="sigh">签到</el-button>
+            </template>
+            <template #date-cell="{ data }">
+              <p :class="isSigned(data)?'sighed':''">
+                {{ data.day.split('-').slice(2).join('-') }}
+              </p>
+            </template>
+          </el-calendar>
+        </div>
+        <!--右-热门讨论-->
+        <div class="content-box">
+          <div class="box-title">热门讨论</div>
+          <div id="text-list-box">
+            <a href="#" v-for="dis in discussions">
+              <div>{{ dis.title }}</div>
+            </a>
+            <a href="#" v-if="recentTests.length >= 4">更多...</a>
+          </div>
+        </div>
+      </div>
+    </el-main>
   </div>
 </template>
 
 <script setup>
 import {reactive, ref} from "vue";
-import {Search} from '@element-plus/icons-vue'
 import {ElMessage} from "element-plus";
+import Head from "@/components/Head.vue";
 
-const searchText = ref('')
-const value = ref(new Date())
+document.title = '答题国度';
+const today = ref(new Date())
 let hotTests = reactive([
   {testId: '1523', name: '微积分练习题', difficulty: 'middle', publisher: '高老师', studyNum: '15234'},
   {testId: '1523', name: '微积分练习题', difficulty: 'middle', publisher: '高老师', studyNum: '15234'},
@@ -114,20 +108,20 @@ let discussions = reactive([
   {discussionId: '7536', title: '激发大学生创新创业意识'},
 ])
 
+const userInfo = reactive({
+  userId: '801523',
+  name: '小明'
+});
+
 //进入试卷
 function goTest(test) {
-  location.href = '/test/' + test.testId;
+  location.href = '/test/' + test.testId + '/summary';
 }
 
 // 是否签到
 function isSigned(data) {
   let day = parseInt(data.day.split('-').slice(2).join('-'));
   return day > 10 && day < 16;
-}
-
-//搜索试卷
-function testF() {
-  alert('模拟搜索' + searchText.value);
 }
 
 // 签到
@@ -140,14 +134,6 @@ function sigh() {
 </script>
 
 <style>
-/*输入框*/
-.el-input {
-  font-size: 20px;
-  width: 200px;
-  height: 35px;
-  margin-right: 30px;
-}
-
 /*走马灯*/
 img {
   width: 100%;

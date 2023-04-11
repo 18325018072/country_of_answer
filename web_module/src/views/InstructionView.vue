@@ -4,7 +4,7 @@
       <!-- 首部 -->
       <el-header class="header">
         <div class="header-left">
-          <a href="/home" target="_blank"> <img src="/src/assets/countryLoge.png" class="logo" alt="答题国度logo"/>答题国度</a>
+          <a href="/home" target="_blank"> <img src="@/assets/countryLoge.png" class="logo" alt="答题国度logo"/>答题国度</a>
         </div>
         <div class="header-right">
           <a href="/home" target="_blank">开始</a>
@@ -27,9 +27,9 @@
         <div id="intro-div">
           <div class="intro-title">答题国度</div>
           <div class="intro-sub-title">高并发场景下的在线课程答题系统</div>
-          <el-button type="danger">开始</el-button>
+          <el-button type="danger" @click="start">开始</el-button>
         </div>
-        <img src="src/assets/carousel3.png" class="intro-pic">
+        <img src="src/assets/carousel3.png" class="intro-pic" alt="项目封面展示图"/>
       </el-main>
     </el-container>
   </div>
@@ -39,9 +39,13 @@
 import {ref} from 'vue'
 
 const centerDialogVisible = ref(false)
+
+function start() {
+  location.href = "/home";
+}
 </script>
 
-<style>
+<style scoped>
 #intro-div {
   margin: 50px;
 }
