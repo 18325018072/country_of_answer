@@ -1,7 +1,11 @@
 package com.kevin.user_service.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kevin.user_service.pojo.UserInfo;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author 20349
@@ -19,4 +23,12 @@ public interface UserInfoService extends IService<UserInfo> {
 	 * 用手机号码注册新账号
 	 */
 	void register(String tel);
+
+	/**
+	 * 获取该用户最近查看的试卷
+	 *
+	 * @param tel 用户电话
+	 * @return [{45621,"机组试卷"},{81726,"计科试卷"}]
+	 */
+	String getRecentTest(String tel);
 }

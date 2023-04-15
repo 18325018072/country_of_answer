@@ -27,7 +27,9 @@
         <div id="intro-div">
           <div class="intro-title">答题国度</div>
           <div class="intro-sub-title">高并发场景下的在线课程答题系统</div>
-          <el-button type="danger" @click="start">开始</el-button>
+          <a href="/home">
+            <el-button type="danger">开始</el-button>
+          </a>
         </div>
         <img src="src/assets/carousel3.png" class="intro-pic" alt="项目封面展示图"/>
       </el-main>
@@ -39,10 +41,6 @@
 import {ref} from 'vue'
 
 const centerDialogVisible = ref(false)
-
-function start() {
-  location.href = "/home";
-}
 </script>
 
 <style scoped>

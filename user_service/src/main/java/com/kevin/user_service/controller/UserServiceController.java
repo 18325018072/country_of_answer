@@ -13,12 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin
-@Data
 public class UserServiceController {
 	/**
 	 * 手机号码正则
 	 */
-	private final String PHONE_REGEX = "^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\\d{8}$";
+	private static final String PHONE_REGEX = "^1([38][0-9]|4[579]|5[0-3,5-9]|6[6]|7[0135678]|9[89])\\d{8}$";
 	private LoginService loginService;
 
 	private UserInfoService userInfoService;
@@ -47,6 +46,14 @@ public class UserServiceController {
 				return BaseResponsePack.simpleFail("发送验证码异常:" + e.getMessage());
 			}
 		}
+	}
+
+	/**
+	 * 获取该用户最近查看的试卷
+	 */
+	@GetMapping("recentTest")
+	public BaseResponsePack getRecentTest(@RequestParam String tel) {
+		return BaseResponsePack.simpleSuccess(userInfoService.getRecentTest(tel));
 	}
 
 	@GetMapping("test")

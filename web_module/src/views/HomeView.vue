@@ -19,14 +19,14 @@
         </el-carousel>
         <!--左-热门试题-->
         <div class="content-box">
-          <div class="box-title">热门试题</div>
+          <div class="box-title">热门试卷</div>
           <div id="hot-test-box">
-            <a href="#" class="test-div" v-for="test in hotTests" @click="goTest(test)">
+            <a href="#" class="test-div" v-for="test in hotTests.data" @click="goTest(test)">
               <div>
-                <img src="./src/assets/easy.png" v-if="test.difficulty === 'easy'" alt="简单"/>
-                <img src="../assets/middle.png" v-else-if="test.difficulty === 'middle'" alt="中等"/>
-                <img src="./src/assets/hard.png" v-else alt="困难"/>
-                {{ test.name }}
+                <img src="@/assets/easy.png" v-if="test.difficulty === 'easy'" alt="简单"/>
+                <img src="@/assets/middle.png" v-else-if="test.difficulty === 'middle'" alt="中等"/>
+                <img src="@/assets/hard.png" v-else alt="困难"/>
+                {{ test.testName }}
               </div>
               <div class="test-down">
                 <span>{{ test.publisher }}</span>
@@ -41,11 +41,12 @@
         <!--右-最近答题-->
         <div class="content-box">
           <div class="box-title">最近答题</div>
-          <div id="text-list-box">
-            <a href="#" v-for="test in recentTests">
-              <div>{{ test.name }}</div>
+          <div v-if="userInfo.userId==='none'" style="color: gray">请先登录</div>
+          <div id="text-list-box" v-else>
+            <a href="#" v-for="test in recentTests.data">
+              <div>{{ test.testName }}</div>
             </a>
-            <a href="#" v-if="recentTests.length >= 4">更多...</a>
+            <a href="#" v-if="recentTests.data.length >= 4">更多...</a>
           </div>
         </div>
         <!--右-学习历史-->
@@ -82,36 +83,73 @@
 import {reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
 import Head from "@/components/Head.vue";
+import axios from "axios";
 
 document.title = '答题国度';
 const today = ref(new Date())
-let hotTests = reactive([
-  {testId: '1523', name: '微积分练习题', difficulty: 'middle', publisher: '高老师', studyNum: '15234'},
-  {testId: '1523', name: '微积分练习题', difficulty: 'middle', publisher: '高老师', studyNum: '15234'},
-  {testId: '1523', name: '微积分练习题', difficulty: 'middle', publisher: '高老师', studyNum: '15234'},
-  {testId: '1523', name: '微积分练习题', difficulty: 'middle', publisher: '高老师', studyNum: '15234'},
-  {testId: '1523', name: '微积分练习题', difficulty: 'middle', publisher: '高老师', studyNum: '15234'},
-  {testId: '1523', name: '微积分练习题', difficulty: 'middle', publisher: '高老师', studyNum: '15234'},
-  {testId: '1523', name: '微积分练习题', difficulty: 'middle', publisher: '高老师', studyNum: '15234'}
-])
-let recentTests = reactive([
-  {testId: '1523', name: '微积分练习题'},
-  {testId: '1523', name: '微积分练习题'},
-  {testId: '1523', name: '微积分练习题'},
-  {testId: '1523', name: '微积分练习题'}
-])
-let discussions = reactive([
-  {discussionId: '7536', title: '激发大学生创新创业意识'},
-  {discussionId: '7536', title: '激发大学生创新创业意'},
-  {discussionId: '7536', title: '激发大学生创新创业'},
-  {discussionId: '7536', title: '激发大学生创新创'},
-  {discussionId: '7536', title: '激发大学生创新创业意识'},
-])
+let hotTests = reactive({
+  data: [
+    {testId: '1523', testName: '微积分练习题', difficulty: 'middle', publisher: '高老师', studyNum: '15234'}
+  ]
+})
+let recentTests = reactive({
+  data: [
+    {testId: '1523', testName: '微积分练习题'}
+  ]
+})
+let discussions = reactive({
+  data: [
+    {discussionId: '7536', title: '激发大学生创新创业意识'}
+  ]
+})
 
 const userInfo = reactive({
-  userId: '801523',
-  name: '小明'
+  userId: 'none',
+  name: 'none',
+  tel: 'none'
 });
+
+const USER_BASE_URL = 'http://localhost:7000';
+const TEST_BASE_URL = 'http://localhost:7001';
+
+//请求热门试卷
+axios.request({
+  method: 'get',
+  url: '/hotTest',
+  baseURL: TEST_BASE_URL
+}).then(response => {
+  let a = response.data.object;
+  console.log(a);
+  hotTests.data = a;
+}).catch(error => {
+  console.log(error);
+});
+
+if (userInfo.userId !== "none") {
+  //请求最近试卷
+  axios.request({
+    method: 'get',
+    url: '/recentTest',
+    params: {tel: userInfo.tel},
+    baseURL: USER_BASE_URL
+  }).then(response => {
+    recentTests = JSON.stringify(response.object);
+  }).catch(error => {
+    console.log(error);
+  });
+}
+
+
+//请求热门讨论
+// axios.request({
+//   method: 'get',
+//   url: '/discussion',
+//   baseURL: 'http://localhost:7000'
+// }).then(response => {
+//   discussions = JSON.stringify(response.object);
+// }).catch(error => {
+//   console.log(error);
+// });
 
 //进入试卷
 function goTest(test) {
@@ -204,7 +242,6 @@ img {
 #text-list-box a {
   font-size: 17px;
   color: gray;
-  text-decoration-line: none;
   margin-bottom: 5px;
 }
 

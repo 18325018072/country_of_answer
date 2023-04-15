@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kevin.test_service.mapper.TestAnswerMapper">
+
+    <resultMap id="BaseResultMap" type="com.kevin.test_service.pojo.TestAnswer">
+        <id property="testId" column="test_id" jdbcType="INTEGER"/>
+        <result property="selectAnswer" column="select_answer" jdbcType="VARCHAR"/>
+        <result property="judgeAnswer" column="judge_answer" jdbcType="VARCHAR"/>
+        <result property="completeAnswer" column="complete_answer" jdbcType="VARCHAR"/>
+        <result property="comprehensionAnswer" column="comprehension_answer" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        test_id,select_answer,judge_answer,
+        complete_answer,comprehension_answer
+    </sql>
+</mapper>

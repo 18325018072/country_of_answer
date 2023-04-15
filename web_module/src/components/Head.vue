@@ -3,13 +3,14 @@
     <!-- 首部 -->
     <el-header class="header">
       <div class="header-left">
-        <a href="/home" target="_blank"> <img src="/src/assets/countryLoge.png" class="logo" alt="答题国度logo"/>答题国度</a>
+        <a href="/home" target="_blank"> <img src="@/assets/countryLoge.png" class="logo"
+                                              alt="答题国度logo"/>答题国度</a>
       </div>
       <div class="header-right">
         <el-input v-model="searchText" class="w-50 m-2" placeholder="搜索试卷"
                   :suffix-icon="Search" @keyup.enter="searchTest"/>
         <a id="head-user" href="#" @click="dialogFormVisible = true">登录/注册</a>
-        <el-dialog class="dialog" v-model="dialogFormVisible" title="答题国度">
+        <el-dialog v-model="dialogFormVisible" title="登录" width="500px">
           <Login/>
         </el-dialog>
       </div>
@@ -22,8 +23,8 @@ import {Search} from '@element-plus/icons-vue'
 import {ref} from "vue";
 import Login from "@/components/Login.vue";
 
-const searchText = ref('')
-const dialogFormVisible = ref(false)
+let searchText = ref('')
+let dialogFormVisible = ref(false)
 
 //搜索试卷
 function searchTest() {
@@ -40,7 +41,4 @@ function searchTest() {
   margin-right: 30px;
 }
 
-.dialog {
-  width: 200px;
-}
 </style>

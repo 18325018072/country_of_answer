@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class LoginServiceImpl implements LoginService {
@@ -35,8 +36,8 @@ public class LoginServiceImpl implements LoginService {
 		// 生成文字验证码
 		String verificationCode = defaultKaptcha.createText();
 		//发送至手机
-		//保存至redis
-		redisTemplate.opsForValue().set(VERIFICATION_CODE_PREFIX + tel, verificationCode);
+		//保存至redis:5分钟后失效
+		redisTemplate.opsForValue().set(VERIFICATION_CODE_PREFIX + tel, verificationCode, 5, TimeUnit.MINUTES);
 	}
 
 	/**

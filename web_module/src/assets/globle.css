@@ -54,3 +54,7 @@ html body {
     margin-right: 8px;
 }
 
+a {
+    text-decoration-line: none;
+
+}

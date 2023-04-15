@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kevin.test_service.mapper.TestUserResultMapper">
+
+    <resultMap id="BaseResultMap" type="com.kevin.test_service.pojo.TestUserResult">
+        <id property="resultId" column="result_id" jdbcType="INTEGER"/>
+        <result property="testId" column="test_id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="userSelectAnswer" column="user_select_answer" jdbcType="VARCHAR"/>
+        <result property="userJudgeAnswer" column="user_judge_answer" jdbcType="VARCHAR"/>
+        <result property="userCompleteAnswer" column="user_complete_answer" jdbcType="VARCHAR"/>
+        <result property="userComprehensionAnswer" column="user_comprehension_answer" jdbcType="VARCHAR"/>
+        <result property="resultDetails" column="result_details" jdbcType="VARCHAR"/>
+        <result property="tryTime" column="try_time" jdbcType="INTEGER"/>
+        <result property="lastGrade" column="last_grade" jdbcType="INTEGER"/>
+        <result property="bestGrade" column="best_grade" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        result_id,test_id,user_id,
+        user_select_answer,user_judge_answer,user_complete_answer,
+        user_comprehension_answer,result_details,try_time,
+        last_grade,best_grade
+    </sql>
+</mapper>
