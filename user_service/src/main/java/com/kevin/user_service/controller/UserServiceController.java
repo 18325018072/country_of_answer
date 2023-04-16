@@ -4,8 +4,9 @@ package com.kevin.user_service.controller;
 import com.kevin.user_service.pojo.BaseResponsePack;
 import com.kevin.user_service.service.LoginService;
 import com.kevin.user_service.service.UserInfoService;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,6 +59,7 @@ public class UserServiceController {
 
 	@GetMapping("test")
 	public BaseResponsePack test(@RequestParam String num) {
-		return BaseResponsePack.simpleFail(num + 1);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		return BaseResponsePack.simpleFail(num + 1 + authentication.toString());
 	}
 }

@@ -20,14 +20,15 @@
     <el-form-item>
       <el-button type="primary" @click="onSubmit(ruleFormRef)">登录/注册</el-button>
     </el-form-item>
+    <el-button @click="$emit('lalala')">增加</el-button>
   </el-form>
 </template>
 
 <script lang="ts" setup>
 import {reactive, ref} from 'vue'
 import axios from "axios";
-import {ElMessage} from 'element-plus'
 import type {FormInstance, FormRules} from "element-plus";
+import {ElMessage} from 'element-plus'
 
 const USER_BASE_URL = 'http://localhost:7000';
 
@@ -90,11 +91,10 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       //输入合法
-      const json = JSON.stringify({
+      axios.post(USER_BASE_URL + '/login/tel', {
         tel: loginData.tel,
         verificationCode: loginData.verificationCode
-      });
-      axios.post(USER_BASE_URL + '/login/tel', json)
+      })
           .then(response => {
             console.log(response);
             ElMessage({

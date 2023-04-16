@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 /**
+ * 认证凭证。<br/>
  * 过滤器 从请求中 提取凭证，封装到 Token 中，用于给 Manager 认证。
  */
 public class VeriCodeAuthenticationToken extends AbstractAuthenticationToken {
@@ -18,7 +19,6 @@ public class VeriCodeAuthenticationToken extends AbstractAuthenticationToken {
 	 * 验证码
 	 */
 	private String verificationCode;
-
 
 	public VeriCodeAuthenticationToken(String tel, String verificationCode) {
 		super(null);

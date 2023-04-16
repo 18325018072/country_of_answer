@@ -16,3 +16,7 @@ mybatis-plus:
   type-aliases-package: com.kevin.user_service/pojo
 server:
   port: 7000
+# 用于生成jwt字符串
+jwt:
+  secretKey: kevin2
+  tokenHead: 'jwt:'

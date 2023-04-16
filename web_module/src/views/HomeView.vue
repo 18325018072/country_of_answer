@@ -1,6 +1,6 @@
 <template>
   <div class="common-layout">
-    <Head/>
+    <Head @lalala="homeT++"/>
     <!--正文-->
     <el-main>
       <!--左-->
@@ -17,6 +17,9 @@
             <img src="../assets/ad3.png" alt="走马灯展示图片"/>
           </el-carousel-item>
         </el-carousel>
+        <div>{{ homeT }}
+          <button @click="testNet(5)">测试通信</button>
+        </div>
         <!--左-热门试题-->
         <div class="content-box">
           <div class="box-title">热门试卷</div>
@@ -87,6 +90,9 @@ import axios from "axios";
 
 document.title = '答题国度';
 const today = ref(new Date())
+
+let homeT = ref(8);
+
 let hotTests = reactive({
   data: [
     {testId: '1523', testName: '微积分练习题', difficulty: 'middle', publisher: '高老师', studyNum: '15234'}
@@ -154,6 +160,11 @@ if (userInfo.userId !== "none") {
 //进入试卷
 function goTest(test) {
   location.href = '/test/' + test.testId + '/summary';
+}
+
+//测试通信
+function testNet(num) {
+  axios.get(USER_BASE_URL + '/test', {params: {num: num}});
 }
 
 // 是否签到

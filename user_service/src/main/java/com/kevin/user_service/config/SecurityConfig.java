@@ -1,18 +1,16 @@
 package com.kevin.user_service.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kevin.user_service.pojo.security.MyAuthSuccessHandler;
 import com.kevin.user_service.pojo.security.VeriCodeAuthenticationFilter;
 import com.kevin.user_service.pojo.security.VeriCodeAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -20,14 +18,15 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.PrintWriter;
-import java.time.Duration;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+	MyAuthSuccessHandler myAuthSuccessHandler;
+
+	HttpSecurity httpSecurity;
 
 	private VeriCodeAuthenticationProvider veriCodeAuthenticationProvider;
 
@@ -37,34 +36,30 @@ public class SecurityConfig {
 	private static final String[] URL_ACCESS_WHITELISTS = {"/verify", "/login"};
 
 	@Autowired
-	public SecurityConfig(VeriCodeAuthenticationProvider veriCodeAuthenticationProvider) {
+	public SecurityConfig(MyAuthSuccessHandler myAuthSuccessHandler, HttpSecurity httpSecurity, VeriCodeAuthenticationProvider veriCodeAuthenticationProvider) {
+		this.myAuthSuccessHandler = myAuthSuccessHandler;
+		this.httpSecurity = httpSecurity;
 		this.veriCodeAuthenticationProvider = veriCodeAuthenticationProvider;
-	}
-
-	/**
-	 * 密码加密算法
-	 */
-	@Bean
-	public BCryptPasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
 	}
 
 	/**
 	 * 配置 HttpSecurity:访问限制、登录、登出
 	 */
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+	public SecurityFilterChain filterChain() throws Exception {
 		return httpSecurity.authorizeRequests()
 				//允许所有人请求验证码和登录
 				.antMatchers(URL_ACCESS_WHITELISTS).permitAll()
 				//除了”请求验证码和登录“外，其他请求都需要认证
 				.anyRequest().authenticated()
+				//禁用session
+				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				//解决 CORS 问题
+				.and().cors().configurationSource(corsConfigurationSource())
 				.and().csrf().disable()
-				.cors()
-				.configurationSource(corsConfigurationSource())
 				//拦截器链中，把 手机号认证过滤器 加到 UsernamePasswordAuthenticationFilter 之后
-				.and().addFilterAfter(veriCodeAuthenticationFilter(httpSecurity), UsernamePasswordAuthenticationFilter.class)
-				.authenticationProvider(veriCodeAuthenticationProvider)
+				.addFilterAfter(veriCodeAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+//				.authenticationProvider(veriCodeAuthenticationProvider)
 				//设置未登录的响应
 				.exceptionHandling().authenticationEntryPoint((request, response, authException) -> {
 					response.setStatus(401);
@@ -90,36 +85,33 @@ public class SecurityConfig {
 		return source;
 	}
 
+
 	/**
-	 * 验证码-filter
+	 * filter
 	 */
 	@Bean
-	public VeriCodeAuthenticationFilter veriCodeAuthenticationFilter(HttpSecurity httpSecurity) throws Exception {
-		//Manager
-		AuthenticationManager authenticationManager = httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
-				.authenticationProvider(veriCodeAuthenticationProvider).build();
-		//Filter
+	public VeriCodeAuthenticationFilter veriCodeAuthenticationFilter() throws Exception {
 		VeriCodeAuthenticationFilter filter = new VeriCodeAuthenticationFilter();
 		//认证使用
-		filter.setAuthenticationManager(authenticationManager);
-		//设置登陆成功返回值是json
-		filter.setAuthenticationSuccessHandler((request, response, authentication) -> {
-			response.setContentType("application/json;charset=utf-8");
-			PrintWriter out = response.getWriter();
-			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.writeValue(out, authentication);
-			out.close();
-		});
+		filter.setAuthenticationManager(authenticationManager());
+		//设置登陆成功，返回json
+		filter.setAuthenticationSuccessHandler(myAuthSuccessHandler);
 		//设置登陆失败返回值是json
 		filter.setAuthenticationFailureHandler((request, response, exception) -> {
-			response.setContentType("application/json;charset=utf-8");
-			PrintWriter out = response.getWriter();
-			Map<String, String> map = new HashMap<>(1);
-			map.put("errMsg", "手机登陆失败：" + exception.getMessage());
-			ObjectMapper objectMapper = new ObjectMapper();
-			objectMapper.writeValue(out, map);
-			out.close();
+			response.setContentType("text/html;charset=utf-8");
+			PrintWriter writer = response.getWriter();
+			writer.write("手机登陆失败：" + exception.getMessage());
+			writer.close();
 		});
 		return filter;
+	}
+
+	/**
+	 * Manager
+	 */
+	@Bean
+	AuthenticationManager authenticationManager() throws Exception {
+		return httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
+				.authenticationProvider(veriCodeAuthenticationProvider).build();
 	}
 }

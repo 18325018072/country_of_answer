@@ -35,22 +35,21 @@ public class VeriCodeAuthenticationProvider implements AuthenticationProvider {
 		VeriCodeAuthenticationToken token = (VeriCodeAuthenticationToken) authentication;
 		String tel = token.getPrincipal();
 		String tokenVerificationCode = token.getCredentials();
-		// 1. 从 redis 中获取验证码
+		//1.从 redis 中获取验证码
 		String redisVerificationCode = redisTemplate.opsForValue().get(LoginServiceImpl.VERIFICATION_CODE_PREFIX + tel);
 		if (redisVerificationCode == null) {
 			throw new BadCredentialsException("验证码已经过期，请重新发送验证码");
 		} else if (!redisVerificationCode.equals(tokenVerificationCode)) {
 			throw new BadCredentialsException("验证码不正确");
 		}
-		// 2. 根据手机号查询用户信息
-//		LoginUser loginUser = (LoginUser) loginPhoneService.loadUserByUsername(tel);
-//		if (loginUser == null) {
-//			throw new BadCredentialsException("用户不存在，请注册");
-//		}
+		//2.认证成功
+		//根据手机号查询用户信息
 		UserInfo user = userInfoService.getUser(tel);
+		//无该用户，则自动创建
 		if (user == null) {
 			userInfoService.register(tel);
 		}
+		((VeriCodeAuthenticationToken) authentication).setDetails(user);
 		authentication.setAuthenticated(true);
 		return authentication;
 	}

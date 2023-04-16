@@ -11,7 +11,7 @@
                   :suffix-icon="Search" @keyup.enter="searchTest"/>
         <a id="head-user" href="#" @click="dialogFormVisible = true">登录/注册</a>
         <el-dialog v-model="dialogFormVisible" title="登录" width="500px">
-          <Login/>
+          <Login @lalala="$emit('lalala')"/>
         </el-dialog>
       </div>
     </el-header>
