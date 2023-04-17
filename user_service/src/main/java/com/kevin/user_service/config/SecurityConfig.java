@@ -1,5 +1,6 @@
 package com.kevin.user_service.config;
 
+import com.kevin.user_service.pojo.security.JwtAuthenticationTokenFilter;
 import com.kevin.user_service.pojo.security.MyAuthSuccessHandler;
 import com.kevin.user_service.pojo.security.VeriCodeAuthenticationFilter;
 import com.kevin.user_service.pojo.security.VeriCodeAuthenticationProvider;
@@ -26,9 +27,9 @@ public class SecurityConfig {
 
 	MyAuthSuccessHandler myAuthSuccessHandler;
 
-	HttpSecurity httpSecurity;
+	VeriCodeAuthenticationProvider veriCodeAuthenticationProvider;
 
-	private VeriCodeAuthenticationProvider veriCodeAuthenticationProvider;
+	JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
 	/**
 	 * 定义SpringSecurity不需要拦截的url
@@ -36,9 +37,10 @@ public class SecurityConfig {
 	private static final String[] URL_ACCESS_WHITELISTS = {"/verify", "/login"};
 
 	@Autowired
-	public SecurityConfig(MyAuthSuccessHandler myAuthSuccessHandler, HttpSecurity httpSecurity, VeriCodeAuthenticationProvider veriCodeAuthenticationProvider) {
+	public SecurityConfig(JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter
+			, MyAuthSuccessHandler myAuthSuccessHandler, VeriCodeAuthenticationProvider veriCodeAuthenticationProvider) {
+		this.jwtAuthenticationTokenFilter = jwtAuthenticationTokenFilter;
 		this.myAuthSuccessHandler = myAuthSuccessHandler;
-		this.httpSecurity = httpSecurity;
 		this.veriCodeAuthenticationProvider = veriCodeAuthenticationProvider;
 	}
 
@@ -46,7 +48,8 @@ public class SecurityConfig {
 	 * 配置 HttpSecurity:访问限制、登录、登出
 	 */
 	@Bean
-	public SecurityFilterChain filterChain() throws Exception {
+	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+		httpSecurity.headers().cacheControl();
 		return httpSecurity.authorizeRequests()
 				//允许所有人请求验证码和登录
 				.antMatchers(URL_ACCESS_WHITELISTS).permitAll()
@@ -58,7 +61,8 @@ public class SecurityConfig {
 				.and().cors().configurationSource(corsConfigurationSource())
 				.and().csrf().disable()
 				//拦截器链中，把 手机号认证过滤器 加到 UsernamePasswordAuthenticationFilter 之后
-				.addFilterAfter(veriCodeAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+				.addFilterAfter(veriCodeAuthenticationFilter(httpSecurity), UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
 //				.authenticationProvider(veriCodeAuthenticationProvider)
 				//设置未登录的响应
 				.exceptionHandling().authenticationEntryPoint((request, response, authException) -> {
@@ -90,10 +94,10 @@ public class SecurityConfig {
 	 * filter
 	 */
 	@Bean
-	public VeriCodeAuthenticationFilter veriCodeAuthenticationFilter() throws Exception {
+	public VeriCodeAuthenticationFilter veriCodeAuthenticationFilter(HttpSecurity httpSecurity) throws Exception {
 		VeriCodeAuthenticationFilter filter = new VeriCodeAuthenticationFilter();
 		//认证使用
-		filter.setAuthenticationManager(authenticationManager());
+		filter.setAuthenticationManager(authenticationManager(httpSecurity));
 		//设置登陆成功，返回json
 		filter.setAuthenticationSuccessHandler(myAuthSuccessHandler);
 		//设置登陆失败返回值是json
@@ -110,7 +114,7 @@ public class SecurityConfig {
 	 * Manager
 	 */
 	@Bean
-	AuthenticationManager authenticationManager() throws Exception {
+	AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
 		return httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
 				.authenticationProvider(veriCodeAuthenticationProvider).build();
 	}

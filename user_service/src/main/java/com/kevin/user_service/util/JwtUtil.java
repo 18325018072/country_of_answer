@@ -1,13 +1,14 @@
 package com.kevin.user_service.util;
 
 import com.kevin.user_service.pojo.UserInfo;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.CompressionCodecs;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -28,18 +29,13 @@ public class JwtUtil {
 	 * 构建 JWT.
 	 */
 	public String createJwt(UserInfo userInfo) {
-		Map<String, Object> userInfoMap = new HashMap<>(4);
-		userInfoMap.put("userName", userInfo.getUserName());
-		userInfoMap.put("userId", userInfo.getUserId());
-		userInfoMap.put("recentTest", userInfo.getRecentTest());
-		userInfoMap.put("signHistory", userInfo.getSignHistory());
 		return tokenHead + Jwts.builder()
 				.setId(UUID.randomUUID().toString().replaceAll("-", ""))
 				.setSubject(userInfo.getUserId() + "")
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(System.currentTimeMillis() + EXPIRE))
 				.signWith(SignatureAlgorithm.HS256, secretKey)
-				.setClaims(userInfoMap)
+				.setClaims(userInfo.toMap())
 				.compressWith(CompressionCodecs.DEFLATE)
 				.compact();
 	}
@@ -48,8 +44,19 @@ public class JwtUtil {
 	/**
 	 * 从 jwt 提取 Claims
 	 */
-	public Claims parseJwt(String jwtString) {
-		JwtParser jwtParser = Jwts.parser().setSigningKey(secretKey);
-		return jwtParser.parseClaimsJws(jwtString).getBody();
+	public UserInfo parseJwt(String jwtString) {
+		Claims body = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtString).getBody();
+		return new UserInfo((Integer) body.get("userId")
+				, (String) body.get("userName")
+				, (String) body.get("tel")
+				, (String) body.get("signHistory")
+				, (String) body.get("recentTest"));
+	}
+
+	/**
+	 * jwt是否过期
+	 */
+	public boolean isTokenExpired(Claims claims) {
+		return claims.getExpiration().before(new Date());
 	}
 }

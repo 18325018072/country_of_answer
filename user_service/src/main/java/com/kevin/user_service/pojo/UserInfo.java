@@ -5,10 +5,13 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -19,6 +22,7 @@ import java.util.UUID;
 @TableName(value = "user_info")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class UserInfo implements Serializable {
 	/**
 	 * 用户ID
@@ -63,5 +67,18 @@ public class UserInfo implements Serializable {
 	public UserInfo(String tel) {
 		this.userName = "用户_" + UUID.randomUUID().toString().substring(0, 8);
 		this.tel = tel;
+	}
+
+	/**
+	 * 将用户信息转化为 map
+	 */
+	public Map<String, Object> toMap() {
+		Map<String, Object> map = new HashMap<>(5);
+		map.put("userId", userId);
+		map.put("userName", userName);
+		map.put("tel", tel);
+		map.put("signHistory", signHistory);
+		map.put("recentTest", recentTest);
+		return map;
 	}
 }
