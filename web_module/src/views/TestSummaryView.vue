@@ -18,11 +18,10 @@
                 <el-button v-else-if="isNotOpen()" type="danger" size="large" disabled>未到开放时间</el-button>
                 <el-button v-else-if="testUserInfo.isScoring === 0" type="success" size="large" disabled>已提交
                 </el-button>
-                <el-button v-else-if="testUserInfo.tryTime >= test.tryLimit" type="success" size="large" disabled>已完成
+                <el-button v-else-if="testUserInfo.tryTime === '0'||test.tryLimit===-1"
+                           class="countryRed" type="danger" size="large" @click="beginTest">答题
                 </el-button>
-                <el-button v-else-if="testUserInfo.tryTime===undefined||testUserInfo.tryTime === '0'"
-                           class="countryRed"
-                           type="danger" size="large" @click="beginTest">答题
+                <el-button v-else-if="testUserInfo.tryTime >= test.tryLimit" type="success" size="large" disabled>已完成
                 </el-button>
                 <el-button v-else class="countryRed" type="danger" size="large" @click="beginTest">再次挑战</el-button>
                 <div v-if="testUserInfo.bestGrade!==0">历史最高分：{{ testUserInfo.bestGrade }}</div>

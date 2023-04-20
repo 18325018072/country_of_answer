@@ -24,6 +24,7 @@
           <el-tab-pane name="complete" label="填空题" v-if="completeProblem.data!==null">
             <div v-for="(question,index) in completeProblem.data">
               <div>{{ question.id }}、{{ question.title }}</div>
+              <el-input v-model="completeAnswer.answer[index]" placeholder="请输入答案。如包含多个答案，请用句号分隔。"/>
             </div>
           </el-tab-pane>
 
@@ -42,7 +43,7 @@
           <el-tab-pane name="comprehension" label="综合题" v-if="comprehensionProblem.data!==undefined">
             <div v-for="(question,index) in comprehensionProblem.data">
               <div>{{ question.id }}、{{ question.title }}</div>
-              <el-input class="multy-text" v-model="comprehensionAnswer.answer[index]"
+              <el-input v-model="comprehensionAnswer.answer[index]"
                         :autosize="{ minRows: 3, maxRows: 6 }"
                         type="textarea" placeholder="在这里输入你的答案"/>
             </div>
@@ -211,7 +212,7 @@ getTestQuestion();
 }
 
 
-.multy-text {
+.el-input {
   margin: 5px 0 15px 0;
 
 }
