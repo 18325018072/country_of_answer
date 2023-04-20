@@ -1,9 +1,9 @@
 package com.kevin.user_service.config;
 
-import com.kevin.user_service.pojo.security.JwtAuthenticationTokenFilter;
-import com.kevin.user_service.pojo.security.MyAuthSuccessHandler;
-import com.kevin.user_service.pojo.security.VeriCodeAuthenticationFilter;
-import com.kevin.user_service.pojo.security.VeriCodeAuthenticationProvider;
+import com.kevin.user_service.security.JwtAuthenticationTokenFilter;
+import com.kevin.user_service.security.MyAuthSuccessHandler;
+import com.kevin.user_service.security.VeriCodeAuthenticationFilter;
+import com.kevin.user_service.security.VeriCodeAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

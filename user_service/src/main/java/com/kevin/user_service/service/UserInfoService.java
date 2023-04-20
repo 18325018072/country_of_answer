@@ -1,11 +1,7 @@
 package com.kevin.user_service.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kevin.user_service.pojo.UserInfo;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author 20349
@@ -31,4 +27,9 @@ public interface UserInfoService extends IService<UserInfo> {
 	 * @return [{45621,"机组试卷"},{81726,"计科试卷"}]
 	 */
 	String getRecentTest(String tel);
+
+	/**
+	 * 用户签到
+	 */
+	void sign(int userId);
 }

@@ -1,12 +1,12 @@
 <template>
   <div class="common-layout">
-    <Head/>
+    <CountryHead/>
   </div>
 </template>
 
 <script setup>
 
-import Head from "@/components/Head.vue";</script>
+import CountryHead from "@/components/CountryHead.vue";</script>
 
 <style scoped>
 

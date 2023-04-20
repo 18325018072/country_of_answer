@@ -1,6 +1,7 @@
 package com.kevin.user_service.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,8 +10,8 @@ import com.kevin.user_service.pojo.UserInfo;
 import com.kevin.user_service.service.UserInfoService;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Calendar;
 
 /**
  * @author 20349
@@ -51,6 +52,35 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo>
 		QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
 		queryWrapper.eq("tel", tel);
 		return getOne(queryWrapper).getRecentTest();
+	}
+
+	/**
+	 * 用户签到
+	 */
+	@Override
+	public void sign(int userId) {
+		UserInfo userInfo = getById(userId);
+		String oldSignHistoryJson = userInfo.getSignHistory();
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			Integer[] oldSignHistory = objectMapper.readValue(oldSignHistoryJson, Integer[].class);
+			int today = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+			//如果已签到，则不签了
+			for (Integer day : oldSignHistory) {
+				if (today == day) {
+					return;
+				}
+			}
+			//如果没签到，则签到
+			Integer[] newSignHistory = Arrays.copyOf(oldSignHistory, oldSignHistory.length + 1);
+			newSignHistory[newSignHistory.length - 1] = today;
+			UpdateWrapper<UserInfo> updateWrapper = new UpdateWrapper<>();
+			updateWrapper.set("sign_history", objectMapper.writeValueAsString(newSignHistory));
+			updateWrapper.eq("user_id", userId);
+			update(updateWrapper);
+		} catch (JsonProcessingException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
 

@@ -40,7 +40,7 @@
 <script setup>
 import {ref} from 'vue'
 
-const centerDialogVisible = ref(false)
+let centerDialogVisible = ref(false)
 </script>
 
 <style scoped>

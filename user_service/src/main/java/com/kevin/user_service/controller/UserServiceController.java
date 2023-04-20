@@ -2,15 +2,13 @@ package com.kevin.user_service.controller;
 
 
 import com.kevin.user_service.pojo.BaseResponsePack;
+import com.kevin.user_service.pojo.UserInfo;
 import com.kevin.user_service.service.LoginService;
 import com.kevin.user_service.service.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
@@ -61,5 +59,23 @@ public class UserServiceController {
 	public BaseResponsePack test(@RequestParam String num) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		return BaseResponsePack.simpleFail(num + 1 + authentication.toString());
+	}
+
+	/**
+	 * 获取用户信息（登录后）
+	 */
+	@GetMapping("/userInfo")
+	public BaseResponsePack getUser() {
+		String tel = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		UserInfo userInfo = userInfoService.getUser(tel);
+		return BaseResponsePack.simpleSuccess(userInfo.toSafeMap());
+	}
+
+	@PostMapping("sign")
+	public BaseResponsePack sign() {
+		String tel = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		UserInfo userInfo = userInfoService.getUser(tel);
+		userInfoService.sign(userInfo.getUserId());
+		return BaseResponsePack.simpleSuccess();
 	}
 }

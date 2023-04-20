@@ -1,6 +1,6 @@
 <template>
   <div class="common-layout">
-    <Head @lalala="homeT++"/>
+    <CountryHead @updateUserInfo="updateUser" :userName="userInfo.userName"/>
     <!--正文-->
     <el-main>
       <!--左-->
@@ -17,14 +17,11 @@
             <img src="../assets/ad3.png" alt="走马灯展示图片"/>
           </el-carousel-item>
         </el-carousel>
-        <div>{{ homeT }}
-          <button @click="testNet(5)">测试通信</button>
-        </div>
         <!--左-热门试题-->
         <div class="content-box">
           <div class="box-title">热门试卷</div>
           <div id="hot-test-box">
-            <a href="#" class="test-div" v-for="test in hotTests.data" @click="goTest(test)">
+            <a href="#" class="test-div" v-for="test in hotTests.data" @click="goTest(test.testId)">
               <div>
                 <img src="@/assets/easy.png" v-if="test.difficulty === 'easy'" alt="简单"/>
                 <img src="@/assets/middle.png" v-else-if="test.difficulty === 'middle'" alt="中等"/>
@@ -39,26 +36,30 @@
           </div>
         </div>
       </div>
+
       <!--右-->
       <div id="right-part">
         <!--右-最近答题-->
         <div class="content-box">
           <div class="box-title">最近答题</div>
-          <div v-if="userInfo.userId==='none'" style="color: gray">请先登录</div>
+          <div v-if="userInfo.userId===undefined" style="color: gray">请先登录</div>
           <div id="text-list-box" v-else>
-            <a href="#" v-for="test in recentTests.data">
+            <a href="#" v-for="test in userInfo.recentTest" @click="goTest(test.testId)">
               <div>{{ test.testName }}</div>
             </a>
-            <a href="#" v-if="recentTests.data.length >= 4">更多...</a>
+            <a href="#" v-if="userInfo.recentTest.length >= 4">更多...</a>
           </div>
         </div>
-        <!--右-学习历史-->
+
+        <!--右-签到历史-->
         <div class="content-box">
           <div class="box-title">学习历史</div>
-          <el-calendar ref="calendar" v-model="today">
+          <el-calendar ref="calendar" v-model="todayDate">
             <template #header="{ date }">
               <span>{{ date }}</span>
-              <el-button class="countryRed" type="danger" @click="sigh">签到</el-button>
+              <el-button v-if="userInfo.userId===undefined" type="info" disabled>未登录</el-button>
+              <el-button v-else-if="isTodaySigned" type="success" disabled>已签到</el-button>
+              <el-button v-else class="countryRed" type="danger" @click="sigh">签到</el-button>
             </template>
             <template #date-cell="{ data }">
               <p :class="isSigned(data)?'sighed':''">
@@ -67,6 +68,7 @@
             </template>
           </el-calendar>
         </div>
+
         <!--右-热门讨论-->
         <div class="content-box">
           <div class="box-title">热门讨论</div>
@@ -74,7 +76,7 @@
             <a href="#" v-for="dis in discussions">
               <div>{{ dis.title }}</div>
             </a>
-            <a href="#" v-if="recentTests.length >= 4">更多...</a>
+            <a href="#" v-if="discussions.length >= 4">更多...</a>
           </div>
         </div>
       </div>
@@ -83,68 +85,74 @@
 </template>
 
 <script setup>
-import {reactive, ref} from "vue";
+import {computed, reactive, ref} from "vue";
 import {ElMessage} from "element-plus";
-import Head from "@/components/Head.vue";
+import CountryHead from "@/components/CountryHead.vue";
 import axios from "axios";
 
 document.title = '答题国度';
-const today = ref(new Date())
-
-let homeT = ref(8);
+const todayDate = ref(new Date());
+const thisMonth = new Date().getMonth() + 1;
 
 let hotTests = reactive({
   data: [
     {testId: '1523', testName: '微积分练习题', difficulty: 'middle', publisher: '高老师', studyNum: '15234'}
   ]
 })
-let recentTests = reactive({
-  data: [
-    {testId: '1523', testName: '微积分练习题'}
-  ]
-})
+
 let discussions = reactive({
   data: [
     {discussionId: '7536', title: '激发大学生创新创业意识'}
   ]
 })
 
+//用户信息
 const userInfo = reactive({
-  userId: 'none',
-  name: 'none',
-  tel: 'none'
+  userId: undefined,
+  userName: undefined,
+  signHistory: [],
+  recentTest: []
 });
 
-const USER_BASE_URL = 'http://localhost:7000';
-const TEST_BASE_URL = 'http://localhost:7001';
+//更新用户信息（登录后触发）
+function updateUser(newUserInfo) {
+  userInfo.userId = newUserInfo.userId;
+  userInfo.userName = newUserInfo.userName;
+  userInfo.signHistory = JSON.parse(newUserInfo.signHistory);
+  //获取每个 用户最近访问试卷的信息
+  let recentTestId = JSON.parse(newUserInfo.recentTest);
+  for (const testId of recentTestId) {
+    axios.get('getTestInfo?testId=' + testId, {baseURL: TEST_BASE_URL})
+        .then(response => {
+          if (response.data.status === 0) {
+            userInfo.recentTest.push({testId: testId, testName: response.data.object.testName});
+          } else {
+            ElMessage({
+              message: '获取试卷信息失败' + response.data.info,
+              type: "error"
+            });
+          }
+        }).catch(err => {
+      ElMessage({
+        message: '获取试卷信息失败:' + err,
+        type: "error"
+      });
+    })
+  }
+}
 
 //请求热门试卷
 axios.request({
   method: 'get',
   url: '/hotTest',
   baseURL: TEST_BASE_URL
-}).then(response => {
-  let a = response.data.object;
-  console.log(a);
-  hotTests.data = a;
-}).catch(error => {
-  console.log(error);
-});
-
-if (userInfo.userId !== "none") {
-  //请求最近试卷
-  axios.request({
-    method: 'get',
-    url: '/recentTest',
-    params: {tel: userInfo.tel},
-    baseURL: USER_BASE_URL
-  }).then(response => {
-    recentTests = JSON.stringify(response.object);
-  }).catch(error => {
-    console.log(error);
-  });
-}
-
+})
+    .then(response => {
+      hotTests.data = response.data.object;
+    })
+    .catch(error => {
+      console.log(error);
+    });
 
 //请求热门讨论
 // axios.request({
@@ -157,28 +165,51 @@ if (userInfo.userId !== "none") {
 //   console.log(error);
 // });
 
-//进入试卷
-function goTest(test) {
-  location.href = '/test/' + test.testId + '/summary';
+//进入试卷详情页面
+function goTest(testId) {
+  location.href = '/test/' + testId + '/summary';
 }
 
-//测试通信
-function testNet(num) {
-  axios.get(USER_BASE_URL + '/test', {params: {num: num}});
-}
-
-// 是否签到
+// 判断每个日期是否签到
 function isSigned(data) {
-  let day = parseInt(data.day.split('-').slice(2).join('-'));
-  return day > 10 && day < 16;
+  let day = parseInt(data.day.split('-')[2]);
+  let month = parseInt(data.day.split('-')[1]);
+  for (const value of userInfo.signHistory) {
+    if (day === value && month === thisMonth) {
+      return true;
+    }
+  }
+  return false;
 }
+
+//今日是否签到
+const isTodaySigned = computed(() => {
+  let thisDay = new Date().getDate();
+  for (const signDay of userInfo.signHistory) {
+    if (signDay === thisDay) {
+      return true;
+    }
+  }
+  return false;
+});
 
 // 签到
 function sigh() {
-  ElMessage({
-    message: '签到成功',
-    type: 'success',
-  })
+  axios.post('/sign', null, {baseURL: USER_BASE_URL})
+      .then(response => {
+        if (response.data.status === 0) {
+          ElMessage({
+            message: '签到成功',
+            type: 'success',
+          });
+          location.reload();
+        } else {
+          ElMessage({
+            message: '签到异常',
+            type: 'warning',
+          });
+        }
+      })
 }
 </script>
 
@@ -256,16 +287,17 @@ img {
   margin-bottom: 5px;
 }
 
-/*日历*/
+/*签到历史-日历*/
 .el-calendar .el-button {
-  height: 22px;
-  width: 40px;
+  height: 25px;
+  width: 55px;
   font-size: 15px;
   margin-left: 30px;
 }
 
 .el-calendar__header {
   justify-content: end;
+  align-items: center;
   padding: 2px;
 }
 

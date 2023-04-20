@@ -1,4 +1,4 @@
-package com.kevin.user_service.pojo.security;
+package com.kevin.user_service.security;
 
 import com.kevin.user_service.pojo.UserInfo;
 import com.kevin.user_service.service.UserInfoService;

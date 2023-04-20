@@ -7,7 +7,7 @@ import 'dayjs/locale/zh-cn'
 import App from './App.vue'
 import router from './router'
 
-import './assets/globle.css'
+import '@/assets/global.css'
 
 const app = createApp(App)
     .use(createPinia())

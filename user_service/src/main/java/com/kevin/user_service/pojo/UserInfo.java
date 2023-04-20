@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
@@ -23,11 +24,13 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class UserInfo implements Serializable {
 	/**
 	 * 用户ID
 	 */
 	@TableId(type = IdType.AUTO)
+	@EqualsAndHashCode.Include
 	private Integer userId;
 
 	/**
@@ -70,15 +73,15 @@ public class UserInfo implements Serializable {
 	}
 
 	/**
-	 * 将用户信息转化为 map
+	 * 将用户信息转化为 map，不包含敏感信息（电话）
 	 */
-	public Map<String, Object> toMap() {
+	public Map<String, Object> toSafeMap() {
 		Map<String, Object> map = new HashMap<>(5);
 		map.put("userId", userId);
 		map.put("userName", userName);
-		map.put("tel", tel);
 		map.put("signHistory", signHistory);
 		map.put("recentTest", recentTest);
 		return map;
 	}
+
 }

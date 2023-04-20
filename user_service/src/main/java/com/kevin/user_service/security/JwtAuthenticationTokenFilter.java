@@ -1,4 +1,4 @@
-package com.kevin.user_service.pojo.security;
+package com.kevin.user_service.security;
 
 import com.kevin.user_service.pojo.UserInfo;
 import com.kevin.user_service.service.UserInfoService;
@@ -59,6 +59,8 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 				// 将信息存入上下文对象
 				SecurityContextHolder.getContext().setAuthentication(token);
 				filterChain.doFilter(request, response);
+			} else {
+				response.getWriter().write("invalid token");
 			}
 		}
 	}

@@ -4,10 +4,11 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-
-import lombok.Data;
 
 /**
  * 用户-试卷答题情况
@@ -16,6 +17,8 @@ import lombok.Data;
  */
 @TableName(value = "test_user_result")
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class TestUserResult implements Serializable {
 	/**
 	 *
@@ -72,6 +75,11 @@ public class TestUserResult implements Serializable {
 	 * 最佳答题成绩
 	 */
 	private Integer bestGrade;
+
+	/**
+	 * 是否正在评分:0是
+	 */
+	private Integer isScoring;
 
 	@TableField(exist = false)
 	private static final long serialVersionUID = 1L;

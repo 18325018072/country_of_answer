@@ -1,4 +1,4 @@
-package com.kevin.user_service.pojo.security;
+package com.kevin.user_service.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpMethod;

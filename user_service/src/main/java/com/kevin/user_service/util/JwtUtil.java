@@ -31,11 +31,11 @@ public class JwtUtil {
 	public String createJwt(UserInfo userInfo) {
 		return tokenHead + Jwts.builder()
 				.setId(UUID.randomUUID().toString().replaceAll("-", ""))
-				.setSubject(userInfo.getUserId() + "")
+				.setSubject(String.valueOf(userInfo.getUserId()))
 				.setIssuedAt(new Date())
 				.setExpiration(new Date(System.currentTimeMillis() + EXPIRE))
 				.signWith(SignatureAlgorithm.HS256, secretKey)
-				.setClaims(userInfo.toMap())
+				.setClaims(userInfo.toSafeMap())
 				.compressWith(CompressionCodecs.DEFLATE)
 				.compact();
 	}
@@ -47,8 +47,7 @@ public class JwtUtil {
 	public UserInfo parseJwt(String jwtString) {
 		Claims body = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtString).getBody();
 		return new UserInfo((Integer) body.get("userId")
-				, (String) body.get("userName")
-				, (String) body.get("tel")
+				, (String) body.get("userName"), null
 				, (String) body.get("signHistory")
 				, (String) body.get("recentTest"));
 	}

@@ -1,9 +1,10 @@
+<!--suppress JSValidateTypes -->
 <template>
   <div class="common-layout">
-    <Head/>
+    <CountryHead @updateUserInfo="updateUser" :userName="userInfo.userName"/>
     <!--正文-->
     <el-main>
-      <h1>{{ test.name }}</h1>
+      <h1>{{ test.testName }}</h1>
       <div id="test-tabs-div">
         <el-tabs id="tab" :tab-position="'left'" class="left-tabs" v-model="curTab">
           <el-tab-pane name="summary" label="概述">
@@ -12,36 +13,45 @@
                 <span class="gray-tip">{{ test.publisher }}</span>
                 <span class="gray-tip">试卷ID：{{ test.testId }}</span>
               </span>
-              <el-button v-if="isPast()" type="danger" size="large">已关闭</el-button>
-              <el-button v-else-if="isNotOpenTime()" type="danger" size="large">未到开放时间</el-button>
-              <el-button v-else-if="userTestInfo.triedTime === '0'" class="countryRed" type="danger" size="large">答题
-              </el-button>
-              <el-button v-else-if="userTestInfo.isScoring === 'true'" type="success" size="large">已提交</el-button>
-              <el-button v-else-if="userTestInfo.triedTime >= test.testTime" type="success" size="large">已完成
-              </el-button>
-              <el-button v-else class="countryRed" type="danger" size="large" @click="goTest">再次挑战</el-button>
+              <div id="but-div">
+                <el-button v-if="isClosed()" type="danger" size="large" disabled>已关闭</el-button>
+                <el-button v-else-if="isNotOpen()" type="danger" size="large" disabled>未到开放时间</el-button>
+                <el-button v-else-if="testUserInfo.isScoring === 0" type="success" size="large" disabled>已提交
+                </el-button>
+                <el-button v-else-if="testUserInfo.tryTime >= test.tryLimit" type="success" size="large" disabled>已完成
+                </el-button>
+                <el-button v-else-if="testUserInfo.tryTime===undefined||testUserInfo.tryTime === '0'"
+                           class="countryRed"
+                           type="danger" size="large" @click="beginTest">答题
+                </el-button>
+                <el-button v-else class="countryRed" type="danger" size="large" @click="beginTest">再次挑战</el-button>
+                <div v-if="testUserInfo.bestGrade!==0">历史最高分：{{ testUserInfo.bestGrade }}</div>
+              </div>
             </div>
             <div>
               <div class="sub-title">详情</div>
-              <div id="test-detail">{{ test.detail }}</div>
+              <div id="test-detail">{{ test.description }}</div>
             </div>
             <div class="space-between">
-              <span class="sub-title">
-                难度：<span class="prop-value">{{ test.difficulty }}</span>
+              <span class="sub-title">难度：
+                  <span class="prop-value" v-if="test.difficulty==='easy'">简单</span>
+                  <span class="prop-value" v-if="test.difficulty==='middle'">中等</span>
+                  <span class="prop-value" v-if="test.difficulty==='hard'">困难</span>
               </span>
               <span class="sub-title">
                 参加人数：<span class="prop-value">{{ test.studyNum }}</span>
               </span>
-              <span class="sub-title">
-                平均成绩：<span class="prop-value">{{ test.aveGrade }}</span>
-              </span>
             </div>
             <div class="space-between">
               <span class="sub-title">
-                答题开放时间：<span class="prop-value">{{ test.beginTime }}-{{ test.endTime }}</span>
+                答题开放时间：<span class="prop-value">
+                {{ test.openTime }} 至 {{ test.endTime }}
+              </span>
               </span>
               <span class="sub-title">
-                可答次数：<span class="prop-value">{{ test.testTime }}</span>
+                可答次数：
+                <span v-if="test.tryLimit === -1" class="prop-value">无限制</span>
+                <span v-else class="prop-value">{{ test.tryLimit }}</span>
               </span>
             </div>
           </el-tab-pane>
@@ -55,50 +65,122 @@
 
 <script setup>
 import {reactive, ref} from 'vue'
-import Head from "@/components/Head.vue";
+import CountryHead from "@/components/CountryHead.vue";
+import axios from "axios";
+import {ElMessage} from "element-plus";
 
+//当前所在标签
 const curTab = ref('summary')
-
+//试卷信息
 const test = reactive({
-  testId: '1523',
-  name: 'MySQL 查询优化练习',
-  difficulty: 'hard',
-  publisher: '高老师',
-  studyNum: '45234',
-  detail: 'MySQL的性能优化非常广泛，包括索引优化，查询优化，查询缓存，服务器设置优化，操作系统和硬件优化，应用层面优化等等。MySQL的性能优化非常广泛，包括索引优化，查询优化，查询缓存，服务器设置优化，操作系统和硬件优化，应用层面优化等等',
-  aveGrade: '74.66',
-  beginTime: '2023/3/26',
-  endTime: '2023/4/5',
-  testTime: '4'
+  testId: undefined,
+  testName: undefined,
+  difficulty: undefined,
+  publisher: undefined,
+  studyNum: undefined,
+  description: undefined,
+  openTime: undefined,
+  endTime: undefined,
+  tryLimit: undefined,
+  status: undefined
 })
 
-const userTestInfo = reactive({
-  userId: '801523',
-  historyTop: '95',
-  triedTime: '3',
-  isScoring: 'false'
+//用户试卷信息
+const testUserInfo = reactive({
+  userId: undefined,
+  testId: undefined,
+  bestGrade: undefined,
+  tryTime: undefined,
+  isScoring: undefined
 })
 
+//用户信息
 const userInfo = reactive({
-  userId: '801523',
-  name: '小明'
+  userId: undefined,
+  userName: undefined
 });
 
-document.title = test.name;
-
-function isPast() {
-  let end = new Date(test.endTime);
-  end.setTime(end.getTime() + 86400000);
-  return new Date().getTime() > end.getTime();
+//获取答题信息
+function loadTestInfo() {
+  test.testId = location.pathname.split('/')[2];
+  testUserInfo.testId = test.testId;
+  axios.get('getTestInfo?testId=' + test.testId, {baseURL: TEST_BASE_URL})
+      .then(response => {
+        if (response.data.status === 0) {
+          test.testId = response.data.object.testId;
+          test.testName = response.data.object.testName;
+          test.difficulty = response.data.object.difficulty;
+          test.publisher = response.data.object.publisher;
+          test.studyNum = response.data.object.studyNum;
+          test.description = response.data.object.description;
+          let timeStamp = new Date(response.data.object.openTimeStamp);
+          test.openTime = timeStamp.getFullYear() + '/' + (timeStamp.getMonth() + 1) + '/' + timeStamp.getDate() + ' ' + formatDate(timeStamp);
+          timeStamp = new Date(response.data.object.endTimeStamp);
+          test.endTime = timeStamp.getFullYear() + '/' + (timeStamp.getMonth() + 1) + '/' + timeStamp.getDate() + ' ' + formatDate(timeStamp);
+          test.tryLimit = response.data.object.tryLimit;
+          test.status = response.data.status;
+        } else {
+          ElMessage({message: '获取试卷信息失败:' + response.data.info, type: 'error'})
+        }
+      })
+      .catch(reason => {
+        ElMessage({message: '获取试卷信息异常:' + reason, type: "error"})
+      });
 }
 
-function isNotOpenTime() {
-  return new Date().getTime() < new Date(test.beginTime).getTime();
+//格式化时间：将3:5格式化为03:05
+function formatDate(timeStamp) {
+  let timeString = timeStamp.getHours();
+  //格式化小时
+  if (timeString < 10) {
+    timeString = '0' + timeStamp.getHours();
+  }
+  //格式化分钟
+  if (timeStamp.getMinutes() < 10) {
+    return timeString + ':0' + timeStamp.getMinutes();
+  } else {
+    return timeString + ':' + timeStamp.getMinutes();
+  }
 }
 
-function goTest() {
+//获取用户答题信息
+function loadTestUserResult() {
+  axios.get('/getTestUserResult', {
+    params: {userId: userInfo.userId, testId: test.testId}
+    , baseURL: TEST_BASE_URL
+  })
+      .then(response => {
+        testUserInfo.isScoring = response.data.object.isScoring;
+        testUserInfo.tryTime = response.data.object.tryTime;
+        testUserInfo.bestGrade = response.data.object.bestGrade;
+      })
+      .catch(reason => ElMessage({message: '获取用户答题信息异常：' + reason, type: 'error'}));
+}
+
+//更新用户信息（登录后触发）
+function updateUser(newUserInfo) {
+  //更新 userInfo
+  userInfo.userId = newUserInfo.userId;
+  userInfo.userName = newUserInfo.userName;
+  //更新 userTestInfo
+  testUserInfo.userId = newUserInfo.userId;
+  loadTestUserResult();
+}
+
+function isClosed() {
+  return new Date().getTime() > new Date(test.endTime).getTime() || test.status === 'closed';
+}
+
+function isNotOpen() {
+  return new Date().getTime() < new Date(test.openTime).getTime();
+}
+
+function beginTest() {
   location.href = '/test/' + test.testId + '/testing';
 }
+
+document.title = test.testName;
+loadTestInfo()
 </script>
 
 <style>

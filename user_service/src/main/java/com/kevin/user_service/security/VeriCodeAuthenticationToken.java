@@ -1,4 +1,4 @@
-package com.kevin.user_service.pojo.security;
+package com.kevin.user_service.security;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;

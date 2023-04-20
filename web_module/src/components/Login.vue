@@ -20,7 +20,6 @@
     <el-form-item>
       <el-button type="primary" @click="onSubmit(ruleFormRef)">登录/注册</el-button>
     </el-form-item>
-    <el-button @click="$emit('lalala')">增加</el-button>
   </el-form>
 </template>
 
@@ -30,21 +29,18 @@ import axios from "axios";
 import type {FormInstance, FormRules} from "element-plus";
 import {ElMessage} from 'element-plus'
 
-const USER_BASE_URL = 'http://localhost:7000';
-
 let buttonDisable = ref(true);
 
 function isTel() {
   buttonDisable.value = isNaN(parseInt(loginData.tel));
 }
 
-const ruleFormRef = ref<FormInstance>();
 //登录表单数据
 const loginData = reactive({
   tel: '',
   verificationCode: '',
   agree: []
-})
+});
 
 //获取验证码
 function getVerificationCode() {
@@ -57,6 +53,7 @@ function getVerificationCode() {
     })
     return;
   }
+
   //发送验证码
   axios.request({
     method: 'get',
@@ -86,6 +83,7 @@ function getVerificationCode() {
 }
 
 //登录
+const emit = defineEmits(['loginSuccess']);
 const onSubmit = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
@@ -96,17 +94,28 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
         verificationCode: loginData.verificationCode
       })
           .then(response => {
-            console.log(response);
-            ElMessage({
-              message: '欢迎您',
-              type: 'success',
-            })
+            let token = response.headers['authorization'];
+            if (token != undefined) {
+              //包含 token，验证成功
+              localStorage.setItem('country_token', token);
+              //设置以后请求都带token
+              axios.defaults.headers.common['Authorization'] = token;
+              ElMessage({
+                message: '欢迎您',
+                type: 'success',
+              });
+            } else {
+              ElMessage({
+                message: '登录失败: ' + response.data,
+                type: 'warning',
+              })
+            }
+            emit('loginSuccess');
           }).catch(error => {
         ElMessage({
-          message: '登录失败',
+          message: '登录失败' + error,
           type: 'warning',
         })
-        console.log(error);
       });
     } else {
       //不符合登录输入规则
@@ -119,6 +128,7 @@ const onSubmit = async (formEl: FormInstance | undefined) => {
   })
 }
 
+const ruleFormRef = ref<FormInstance>();
 const loginRules = reactive<FormRules>({
   agree: [
     {

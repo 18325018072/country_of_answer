@@ -1,6 +1,6 @@
 <template>
   <div class="common-layout">
-    <Head/>
+    <CountryHead @updateUserInfo="updateUser" :userName="userInfo.userName"/>
     <!--正文-->
     <el-main>
       <div>
@@ -10,10 +10,10 @@
       <div id="test-tabs-div">
         <el-tabs id="tab" :tab-position="'left'" class="left-tabs" v-model="curTab">
           <!--选择题-->
-          <el-tab-pane name="select" label="选择题" v-if="testInfo.existSelect==='true'">
-            <div v-for="question in selectProblem">
+          <el-tab-pane name="select" label="选择题" v-if="selectProblem.data!==undefined">
+            <div v-for="(question,index) in selectProblem.data">
               <div>{{ question.id }}、{{ question.title }}</div>
-              <el-radio-group v-model="question.answer" class="ml-4">
+              <el-radio-group v-model="selectAnswer.answer[index]" class="ml-4">
                 <el-radio size="large" v-for="(option,index) in question.options" :label="index">{{ option }}
                 </el-radio>
               </el-radio-group>
@@ -21,26 +21,29 @@
           </el-tab-pane>
 
           <!--填空题-->
-          <el-tab-pane name="complete" label="填空题" v-if="testInfo.existComplete==='true'">
-            填空题
+          <el-tab-pane name="complete" label="填空题" v-if="completeProblem.data!==null">
+            <div v-for="(question,index) in completeProblem.data">
+              <div>{{ question.id }}、{{ question.title }}</div>
+            </div>
           </el-tab-pane>
 
           <!--判断题-->
-          <el-tab-pane name="judge" label="判断题" v-if="testInfo.existJudge==='true'">
-            <div v-for="question in judgeProblem">
+          <el-tab-pane name="judge" label="判断题" v-if="judgeProblem.data!==undefined">
+            <div v-for="(question,index) in judgeProblem.data">
               <div>{{ question.id }}、{{ question.title }}</div>
-              <el-radio-group v-model="question.answer" class="ml-4">
-                <el-radio size="large" label="true"><img src="/src/assets/true.png" alt="true"></el-radio>
-                <el-radio size="large" label="false"><img src="/src/assets/false.png" alt="false"></el-radio>
+              <el-radio-group v-model="judgeAnswer.answer[index]" class="ml-4">
+                <el-radio size="large" label="true"><img src="@/assets/true.png" alt="true"></el-radio>
+                <el-radio size="large" label="false"><img src="@/assets/false.png" alt="false"></el-radio>
               </el-radio-group>
             </div>
           </el-tab-pane>
 
           <!--综合题-->
-          <el-tab-pane name="comprehension" label="综合题" v-if="testInfo.existComprehension==='true'">
-            <div v-for="question in comprehensionProblem">
+          <el-tab-pane name="comprehension" label="综合题" v-if="comprehensionProblem.data!==undefined">
+            <div v-for="(question,index) in comprehensionProblem.data">
               <div>{{ question.id }}、{{ question.title }}</div>
-              <el-input class="multy-text" v-model="question.answer" :autosize="{ minRows: 3, maxRows: 6 }"
+              <el-input class="multy-text" v-model="comprehensionAnswer.answer[index]"
+                        :autosize="{ minRows: 3, maxRows: 6 }"
                         type="textarea" placeholder="在这里输入你的答案"/>
             </div>
           </el-tab-pane>
@@ -52,7 +55,9 @@
 
 <script setup>
 import {reactive, ref} from 'vue'
-import Head from "@/components/Head.vue";
+import CountryHead from "@/components/CountryHead.vue";
+import axios from "axios";
+import {ElMessage} from "element-plus";
 
 const curTab = ref('select');
 
@@ -66,58 +71,105 @@ const testInfo = reactive({
   endDate: '2023/4/5',
   endTime: '22:45'
 })
-
-const userTestInfo = reactive({
-  userId: '801523',
-  historyTop: '95',
-  triedTime: '3',
-  isScoring: 'false'
-})
+document.title = '考试中-' + testInfo.name;
 
 const userInfo = reactive({
   userId: '801523',
   name: '小明'
 })
 
-let selectProblem = reactive([
-  {id: '1', answer: null, title: 'MySQL中，开启慢查询日志需要设置的配置项是？', options: ['slow_query_log', 'slow_qu']},
-  {
-    id: '2',
-    answer: null,
-    title: 'MySQL中，开启慢查询日志需要设置的配置项是？',
-    options: ['slow_query_log', 'slow_qu', 'sl']
-  },
-  {
-    id: '3',
-    answer: null,
-    title: 'MySQL中，开启慢查询日志需要设置的配置项是？',
-    options: ['slow_query_log', 'slow_qu', 'sl', 'slow_query_lo']
-  }
-])
-
 // 题目
-let completeProblem = reactive([
-  {id: '1', answer: null, title: 'MySQL中，开启慢查询日志需要设置的配置项是{}。'},
-  {id: '2', answer: null, title: 'MySQL中，开启慢查询日志需要设置的配置项是{}。'},
-  {id: '3', answer: null, title: 'MySQL中，开启慢查询日志需要设置的配置项是{}。'},
-  {id: '4', answer: null, title: 'MySQL中，开启慢查询日志需要设置的配置项是{}。'},
-  {id: '5', answer: null, title: 'MySQL中，开启慢查询日志需要设置的配置项是{}。'}
-])
-let judgeProblem = reactive([
-  {id: '1', answer: null, title: 'MySQL中，开启慢查询日志需要设置的配置项是slow_query_log。'},
-  {id: '2', answer: null, title: 'MySQL中，开启慢查询日志需要设置的配置项是slow_query_log。'},
-  {id: '3', answer: null, title: 'MySQL中，开启慢查询日志需要设置的配置项是slow_query_log。'},
-  {id: '4', answer: null, title: 'MySQL中，开启慢查询日志需要设置的配置项是slow_query_log。'}
-])
-let comprehensionProblem = reactive([
-  {id: '1', answer: null, title: 'MySQL中，开启慢查询日志需要设置的配置项是什么？'},
-  {id: '2', answer: null, title: 'MySQL中，开启慢查询日志需要设置的配置项是什么？'}
-])
-document.title = '考试中-' + testInfo.name;
+let selectProblem = reactive({
+  data: [
+    {id: '1', title: 'MySQL中，开启慢查询日志需要设置的配置项是？', options: ['slow_query_log', 'slow_qu']},
+    {
+      id: '2',
+      title: 'MySQL中，开启慢查询日志需要设置的配置项是？',
+      options: ['slow_query_log', 'slow_qu', 'sl']
+    },
+    {
+      id: '3',
+      title: 'MySQL中，开启慢查询日志需要设置的配置项是？',
+      options: ['slow_query_log', 'slow_qu', 'sl', 'slow_query_lo']
+    }
+  ]
+})
+let completeProblem = reactive({
+  data: [
+    {id: '1', title: 'MySQL中，开启慢查询日志需要设置的配置项是{}。'},
+    {id: '2', title: 'MySQL中，开启慢查询日志需要设置的配置项是{}。'},
+    {id: '3', title: 'MySQL中，开启慢查询日志需要设置的配置项是{}。'},
+    {id: '4', title: 'MySQL中，开启慢查询日志需要设置的配置项是{}。'},
+    {id: '5', title: 'MySQL中，开启慢查询日志需要设置的配置项是{}。'}
+  ]
+})
+let judgeProblem = reactive({
+  data: [
+    {id: '1', title: 'MySQL中，开启慢查询日志需要设置的配置项是slow_query_log。'},
+    {id: '2', title: 'MySQL中，开启慢查询日志需要设置的配置项是slow_query_log。'},
+    {id: '3', title: 'MySQL中，开启慢查询日志需要设置的配置项是slow_query_log。'},
+    {id: '4', title: 'MySQL中，开启慢查询日志需要设置的配置项是slow_query_log。'}
+  ]
+})
+let comprehensionProblem = reactive({
+  data: [
+    {id: '1', title: 'MySQL中，开启慢查询日志需要设置的配置项是什么？'},
+    {id: '2', title: 'MySQL中，开启慢查询日志需要设置的配置项是什么？'}
+  ]
+})
+//考生答案
+let selectAnswer = reactive({answer: []});
+let judgeAnswer = reactive({answer: []});
+let completeAnswer = reactive({answer: []});
+let comprehensionAnswer = reactive({answer: []});
 
-function submitTest() {
-  alert('提交成功');
+//更新用户信息（登录后触发）
+function updateUser(newUserInfo) {
+  //更新 userInfo
+  userInfo.userId = newUserInfo.userId;
+  userInfo.userName = newUserInfo.userName;
 }
+
+//获取试题
+function getTestQuestion() {
+  testInfo.testId = location.pathname.split('/')[2];
+  axios.get('getTestQuestion', {
+    baseURL: TEST_BASE_URL,
+    params: {testId: testInfo.testId}
+  })
+      .then(response => {
+        if (response.data.status === 0) {
+          let data = response.data.object;
+          selectProblem.data = JSON.parse(data.selectQuestions);
+          judgeProblem.data = JSON.parse(data.judgeQuestions);
+          completeProblem.data = JSON.parse(data.completeQuestions);
+          comprehensionProblem.data = JSON.parse(data.comprehensionQuestions);
+        }
+      })
+      .catch(reason => ElMessage({message: '获取试题异常：' + reason, type: 'error'}))
+}
+
+//提交答案
+function submitTest() {
+  axios.post('submitAnswer', {
+    testId: testInfo.testId,
+    userId: userInfo.userId,
+    userSelectAnswer: JSON.stringify(selectAnswer.answer),
+    userJudgeAnswer: JSON.stringify(judgeAnswer.answer),
+    userCompleteAnswer: JSON.stringify(completeAnswer.answer),
+    userComprehensionAnswer: JSON.stringify(comprehensionAnswer.answer),
+  }, {baseURL: TEST_BASE_URL})
+      .then(response => {
+        if (response.data.status === 0) {
+          ElMessage({message: '提交成功', type: 'success'})
+        } else {
+          ElMessage({message: '提交失败', type: 'error'})
+        }
+      })
+      .catch(reason => ElMessage({message: '提交异常' + reason, type: 'error'}))
+}
+
+getTestQuestion();
 </script>
 
 <style>
