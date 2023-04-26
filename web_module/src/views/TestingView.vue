@@ -5,7 +5,7 @@
     <el-main>
       <div>
         <h1>{{ testInfo.name }}</h1>
-        <el-button type="success" @click="submitTest()">提交</el-button>
+        <el-button type="success" @click="submitAnswer()">提交</el-button>
       </div>
       <div id="test-tabs-div">
         <el-tabs id="tab" :tab-position="'left'" class="left-tabs" v-model="curTab">
@@ -142,7 +142,9 @@ function getTestQuestion() {
         if (response.data.status === 0) {
           let data = response.data.object;
           selectProblem.data = JSON.parse(data.selectQuestions);
+          console.log(data.judgeQuestions);
           judgeProblem.data = JSON.parse(data.judgeQuestions);
+          console.log(JSON.parse(data.judgeQuestions));
           completeProblem.data = JSON.parse(data.completeQuestions);
           comprehensionProblem.data = JSON.parse(data.comprehensionQuestions);
         }
@@ -151,7 +153,7 @@ function getTestQuestion() {
 }
 
 //提交答案
-function submitTest() {
+function submitAnswer() {
   axios.post('submitAnswer', {
     testId: testInfo.testId,
     userId: userInfo.userId,

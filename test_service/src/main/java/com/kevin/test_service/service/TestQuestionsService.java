@@ -1,7 +1,7 @@
 package com.kevin.test_service.service;
 
-import com.kevin.test_service.pojo.TestQuestions;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.kevin.test_service.pojo.TestQuestions;
 
 /**
  * @author 20349
@@ -10,4 +10,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface TestQuestionsService extends IService<TestQuestions> {
 
+	/**
+	 * 根据 tesId 获取试题
+	 */
+	TestQuestions getTestById(String testId);
 }

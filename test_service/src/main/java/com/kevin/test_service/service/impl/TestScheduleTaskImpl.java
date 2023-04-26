@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.kevin.test_service.pojo.TestInfo;
 import com.kevin.test_service.service.TestInfoService;
 import com.kevin.test_service.service.TestScheduleTask;
+import com.kevin.test_service.util.IntegerConstant;
+import com.kevin.test_service.util.StringConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -15,22 +17,18 @@ import java.util.List;
 @Service
 @EnableScheduling
 public class TestScheduleTaskImpl implements TestScheduleTask {
-	/**
-	 * redis中热门试卷存储的list名
-	 */
-	public static final String REDIS_HOT_TEST_LIST = "hot_test_id_list";
 
-	/**
-	 * 展示热门试卷的最大个数
-	 */
-	public static final int HOT_TEST_MAX_NUM = 10;
 	RedisTemplate<String, String> redisTemplate;
 	TestInfoService testInfoService;
+	String hotListName;
 
 	@Autowired
 	public TestScheduleTaskImpl(RedisTemplate<String, String> redisTemplate, TestInfoService testInfoService) {
 		this.redisTemplate = redisTemplate;
 		this.testInfoService = testInfoService;
+		hotListName = StringConstant.REDIS_HOT_TEST_LIST;
+		//启动服务器时立刻刷新一次
+		flushHotTest();
 	}
 
 	/**
@@ -41,13 +39,13 @@ public class TestScheduleTaskImpl implements TestScheduleTask {
 	public void flushHotTest() {
 		QueryWrapper<TestInfo> queryWrapper = new QueryWrapper<>();
 		queryWrapper.orderByDesc("study_num");
-		queryWrapper.last("limit " + HOT_TEST_MAX_NUM);
+		queryWrapper.last("limit " + IntegerConstant.HOT_TEST_MAX_NUM);
 		List<TestInfo> list = testInfoService.list(queryWrapper);
 		//创建新的list
 		for (TestInfo testInfo : list) {
-			redisTemplate.opsForList().leftPush("temp_" + REDIS_HOT_TEST_LIST, testInfo.getTestId() + "");
+			redisTemplate.opsForList().leftPush("temp_" + hotListName, testInfo.getTestId() + "");
 		}
 		//替换旧的list
-		redisTemplate.rename("temp_" + REDIS_HOT_TEST_LIST, REDIS_HOT_TEST_LIST);
+		redisTemplate.rename("temp_" + hotListName, hotListName);
 	}
 }

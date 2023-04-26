@@ -1,7 +1,6 @@
 package com.kevin.test_service.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.kevin.test_service.pojo.BaseResponsePack;
 import com.kevin.test_service.pojo.TestInfo;
 import com.kevin.test_service.pojo.TestQuestions;
@@ -72,7 +71,7 @@ public class TestServiceController {
 	 */
 	@GetMapping("getTestQuestion")
 	public BaseResponsePack getTestQuestion(@RequestParam String testId) {
-		TestQuestions testQuestions = testQuestionsService.getById(testId);
+		TestQuestions testQuestions = testQuestionsService.getTestById(testId);
 		if (testQuestions == null) {
 			return BaseResponsePack.simpleFail("试卷不存在");
 		} else {
@@ -85,26 +84,7 @@ public class TestServiceController {
 	 */
 	@PostMapping("submitAnswer")
 	public BaseResponsePack submitAnswer(@RequestBody TestUserResult testUserResult) {
-		//获取用户答题信息
-		QueryWrapper<TestUserResult> wrapper = new QueryWrapper<>();
-		wrapper.eq("test_id", testUserResult.getTestId());
-		wrapper.eq("user_id", testUserResult.getUserId());
-		TestUserResult oldResult = testUserResultService.getOne(wrapper);
-		if (oldResult == null) {
-			//创建用户答题信息
-			testUserResult.setTryTime(1);
-			testUserResult.setIsScoring(0);
-			testUserResultService.save(testUserResult);
-		} else {
-			UpdateWrapper<TestUserResult> updateWrapper = new UpdateWrapper<>(oldResult);
-			updateWrapper.set("user_select_answer", testUserResult.getUserSelectAnswer());
-			updateWrapper.set("user_judge_answer", testUserResult.getUserJudgeAnswer());
-			updateWrapper.set("user_complete_answer", testUserResult.getUserCompleteAnswer());
-			updateWrapper.set("user_comprehension_answer", testUserResult.getUserComprehensionAnswer());
-			updateWrapper.set("try_time", oldResult.getTryTime() + 1);
-			updateWrapper.set("is_scoring", 0);
-			testUserResultService.update(updateWrapper);
-		}
+		testUserResultService.submitAnswer(testUserResult);
 		return BaseResponsePack.simpleSuccess();
 	}
 }

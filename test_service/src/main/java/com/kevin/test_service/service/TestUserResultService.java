@@ -9,5 +9,8 @@ import com.kevin.test_service.pojo.TestUserResult;
  * @createDate 2023-04-19 23:56:00
  */
 public interface TestUserResultService extends IService<TestUserResult> {
-
+	/**
+	 * 提交试卷
+	 */
+	void submitAnswer(TestUserResult testUserResult);
 }

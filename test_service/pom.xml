@@ -17,6 +17,11 @@
         <java.version>8</java.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.apache.rocketmq</groupId>
+            <artifactId>rocketmq-client-java</artifactId>
+            <version>5.0.3</version>
+        </dependency>
         <!--spring data-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -167,7 +167,8 @@ axios.request({
 
 //进入试卷详情页面
 function goTest(testId) {
-  location.href = '/test/' + testId + '/summary';
+  // location.href = '/test/' + testId + '/summary';
+  window.open('/test/' + testId + '/summary', '_blank');
 }
 
 // 判断每个日期是否签到

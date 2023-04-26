@@ -18,13 +18,13 @@
                 <el-button v-else-if="isNotOpen()" type="danger" size="large" disabled>未到开放时间</el-button>
                 <el-button v-else-if="testUserInfo.isScoring === 0" type="success" size="large" disabled>已提交
                 </el-button>
-                <el-button v-else-if="testUserInfo.tryTime === '0'||test.tryLimit===-1"
+                <el-button v-else-if="testUserInfo.tryTime === 0||test.tryLimit===-1"
                            class="countryRed" type="danger" size="large" @click="beginTest">答题
                 </el-button>
                 <el-button v-else-if="testUserInfo.tryTime >= test.tryLimit" type="success" size="large" disabled>已完成
                 </el-button>
                 <el-button v-else class="countryRed" type="danger" size="large" @click="beginTest">再次挑战</el-button>
-                <div v-if="testUserInfo.bestGrade!==0">历史最高分：{{ testUserInfo.bestGrade }}</div>
+                <div v-if="testUserInfo.bestGrade!==undefined">历史最高分：{{ testUserInfo.bestGrade }}</div>
               </div>
             </div>
             <div>
@@ -108,6 +108,8 @@ function loadTestInfo() {
         if (response.data.status === 0) {
           test.testId = response.data.object.testId;
           test.testName = response.data.object.testName;
+          //设置页面标签名
+          document.title = test.testName;
           test.difficulty = response.data.object.difficulty;
           test.publisher = response.data.object.publisher;
           test.studyNum = response.data.object.studyNum;
@@ -127,7 +129,7 @@ function loadTestInfo() {
       });
 }
 
-//格式化时间：将3:5格式化为03:05
+//格式化（答题开放）时间：将3:5格式化为03:05
 function formatDate(timeStamp) {
   let timeString = timeStamp.getHours();
   //格式化小时
@@ -149,9 +151,14 @@ function loadTestUserResult() {
     , baseURL: TEST_BASE_URL
   })
       .then(response => {
-        testUserInfo.isScoring = response.data.object.isScoring;
-        testUserInfo.tryTime = response.data.object.tryTime;
-        testUserInfo.bestGrade = response.data.object.bestGrade;
+        if (response.data.status === 0) {
+          testUserInfo.isScoring = response.data.object.isScoring;
+          testUserInfo.tryTime = response.data.object.tryTime;
+          testUserInfo.bestGrade = response.data.object.bestGrade;
+        } else if (response.data.info === '无记录') {
+          testUserInfo.tryTime = 0;
+          testUserInfo.isScoring = 1;
+        }
       })
       .catch(reason => ElMessage({message: '获取用户答题信息异常：' + reason, type: 'error'}));
 }
@@ -178,8 +185,7 @@ function beginTest() {
   location.href = '/test/' + test.testId + '/testing';
 }
 
-document.title = test.testName;
-loadTestInfo()
+loadTestInfo();
 </script>
 
 <style>

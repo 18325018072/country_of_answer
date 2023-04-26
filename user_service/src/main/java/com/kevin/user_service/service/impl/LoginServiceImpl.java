@@ -5,16 +5,15 @@ import com.kevin.user_service.pojo.BaseResponsePack;
 import com.kevin.user_service.pojo.UserInfo;
 import com.kevin.user_service.service.LoginService;
 import com.kevin.user_service.service.UserInfoService;
+import com.kevin.user_service.util.StringConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class LoginServiceImpl implements LoginService {
-	public static final String VERIFICATION_CODE_PREFIX = "user:";
 	private final UserInfoService userInfoService;
 
 	private final RedisTemplate<String, String> redisTemplate;
@@ -32,12 +31,13 @@ public class LoginServiceImpl implements LoginService {
 	 * 手机号码登录-发送验证码
 	 */
 	@Override
-	public void sendVerificationCode(String tel) throws IOException {
+	public void sendVerificationCode(String tel) {
 		// 生成文字验证码
-		String verificationCode = defaultKaptcha.createText();
+//toChange 测试数据：		String verificationCode = defaultKaptcha.createText();
+		String verificationCode = "1111";
 		//发送至手机
 		//保存至redis:5分钟后失效
-		redisTemplate.opsForValue().set(VERIFICATION_CODE_PREFIX + tel, verificationCode, 5, TimeUnit.MINUTES);
+		redisTemplate.opsForValue().set(StringConstant.REDIS_VERIFICATION_CODE_PREFIX + tel, verificationCode, 5, TimeUnit.MINUTES);
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class LoginServiceImpl implements LoginService {
 	@Override
 	public BaseResponsePack login(String tel, String verificationCode) {
 		//向redis验证
-		if (verificationCode.equals(redisTemplate.opsForValue().get(VERIFICATION_CODE_PREFIX + tel))) {
+		if (verificationCode.equals(redisTemplate.opsForValue().get(StringConstant.REDIS_VERIFICATION_CODE_PREFIX + tel))) {
 			UserInfo user = userInfoService.getUser(tel);
 			//如果没注册，则自动注册
 			if (user == null) {
@@ -58,7 +58,9 @@ public class LoginServiceImpl implements LoginService {
 				userInfoService.register(tel);
 			}
 			user = userInfoService.getUser(tel);
-			System.out.println(user);
+			//删除redis验证码
+			redisTemplate.delete(StringConstant.REDIS_VERIFICATION_CODE_PREFIX + tel);
+			//返回登录用户信息
 			return BaseResponsePack.simpleSuccess(user);
 		} else {
 			//验证码错误

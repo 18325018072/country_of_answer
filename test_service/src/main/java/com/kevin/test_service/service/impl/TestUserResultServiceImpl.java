@@ -1,5 +1,7 @@
 package com.kevin.test_service.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kevin.test_service.mapper.TestUserResultMapper;
 import com.kevin.test_service.pojo.TestUserResult;
@@ -15,6 +17,32 @@ import org.springframework.stereotype.Service;
 public class TestUserResultServiceImpl extends ServiceImpl<TestUserResultMapper, TestUserResult>
 		implements TestUserResultService {
 
+	/**
+	 * 提交试卷
+	 */
+	@Override
+	public void submitAnswer(TestUserResult testUserResult) {
+		//获取用户答题信息
+		QueryWrapper<TestUserResult> wrapper = new QueryWrapper<>();
+		wrapper.eq("test_id", testUserResult.getTestId());
+		wrapper.eq("user_id", testUserResult.getUserId());
+		TestUserResult oldResult = getOne(wrapper);
+		if (oldResult == null) {
+			//创建用户答题信息
+			testUserResult.setTryTime(1);
+			testUserResult.setIsScoring(0);
+			save(testUserResult);
+		} else {
+			UpdateWrapper<TestUserResult> updateWrapper = new UpdateWrapper<>(oldResult);
+			updateWrapper.set("user_select_answer", testUserResult.getUserSelectAnswer());
+			updateWrapper.set("user_judge_answer", testUserResult.getUserJudgeAnswer());
+			updateWrapper.set("user_complete_answer", testUserResult.getUserCompleteAnswer());
+			updateWrapper.set("user_comprehension_answer", testUserResult.getUserComprehensionAnswer());
+			updateWrapper.set("try_time", oldResult.getTryTime() + 1);
+			updateWrapper.set("is_scoring", 0);
+			update(updateWrapper);
+		}
+	}
 }
 
 

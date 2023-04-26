@@ -2,7 +2,7 @@ package com.kevin.user_service.security;
 
 import com.kevin.user_service.pojo.UserInfo;
 import com.kevin.user_service.service.UserInfoService;
-import com.kevin.user_service.service.impl.LoginServiceImpl;
+import com.kevin.user_service.util.StringConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -36,7 +36,7 @@ public class VeriCodeAuthenticationProvider implements AuthenticationProvider {
 		String tel = token.getPrincipal();
 		String tokenVerificationCode = token.getCredentials();
 		//1.从 redis 中获取验证码
-		String redisVerificationCode = redisTemplate.opsForValue().get(LoginServiceImpl.VERIFICATION_CODE_PREFIX + tel);
+		String redisVerificationCode = redisTemplate.opsForValue().get(StringConstant.REDIS_VERIFICATION_CODE_PREFIX + tel);
 		if (redisVerificationCode == null) {
 			throw new BadCredentialsException("验证码已经过期，请重新发送验证码");
 		} else if (!redisVerificationCode.equals(tokenVerificationCode)) {
