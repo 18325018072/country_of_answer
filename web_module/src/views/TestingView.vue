@@ -5,7 +5,9 @@
     <el-main>
       <div>
         <h1>{{ testInfo.name }}</h1>
-        <el-button type="success" @click="submitAnswer()">提交</el-button>
+        <div id="test-time-sub">
+          <el-button type="success" @click="submitAnswer()">提交</el-button>
+        </div>
       </div>
       <div id="test-tabs-div">
         <el-tabs id="tab" :tab-position="'left'" class="left-tabs" v-model="curTab">
@@ -45,6 +47,7 @@
               <div>{{ question.id }}、{{ question.title }}</div>
               <el-input v-model="comprehensionAnswer.answer[index]"
                         :autosize="{ minRows: 3, maxRows: 6 }"
+                        style="margin:5px 0 35px 0"
                         type="textarea" placeholder="在这里输入你的答案"/>
             </div>
           </el-tab-pane>
@@ -134,7 +137,7 @@ function updateUser(newUserInfo) {
 //获取试题
 function getTestQuestion() {
   testInfo.testId = location.pathname.split('/')[2];
-  axios.get('getTestQuestion', {
+  axios.get('/test/getTestQuestion', {
     baseURL: TEST_BASE_URL,
     params: {testId: testInfo.testId}
   })
@@ -154,7 +157,7 @@ function getTestQuestion() {
 
 //提交答案
 function submitAnswer() {
-  axios.post('submitAnswer', {
+  axios.post('/test/submitAnswer', {
     testId: testInfo.testId,
     userId: userInfo.userId,
     userSelectAnswer: JSON.stringify(selectAnswer.answer),
@@ -182,6 +185,11 @@ getTestQuestion();
   flex-direction: column;
 }
 
+#test-time-sub {
+  display: flex;
+  justify-content: flex-end;
+}
+
 #test-tabs-div {
   display: flex;
   flex-direction: row;
@@ -206,16 +214,8 @@ getTestQuestion();
   padding-left: 10px;
 }
 
-
-.el-tab-pane .el-button {
-  font-size: 25px;
-  justify-content: center;
-  padding: 3px;
-}
-
-
 .el-input {
-  margin: 5px 0 15px 0;
+  margin: 5px 0 25px 0;
 
 }
 </style>

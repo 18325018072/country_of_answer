@@ -34,7 +34,7 @@ public class SecurityConfig {
 	/**
 	 * 定义SpringSecurity不需要拦截的url
 	 */
-	private static final String[] URL_ACCESS_WHITELISTS = {"/verify", "/login"};
+	private static final String[] URL_ACCESS_WHITELISTS = {"/user/verify", "/user/login"};
 
 	@Autowired
 	public SecurityConfig(JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter

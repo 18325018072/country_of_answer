@@ -44,7 +44,7 @@ const loginData = reactive({
 
 //获取验证码
 function getVerificationCode() {
-  //校验手机号码
+  //1.校验手机号码
   const reg = /^1[3456789]\d{9}$/;
   if (!reg.test(loginData.tel)) {
     ElMessage({
@@ -53,11 +53,10 @@ function getVerificationCode() {
     })
     return;
   }
-
-  //发送验证码
+  //2.发送验证码
   axios.request({
     method: 'get',
-    url: '/verify',
+    url: '/user/verify',
     params: {
       tel: loginData.tel
     },

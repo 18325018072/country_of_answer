@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/user")
 @CrossOrigin
 public class UserServiceController {
 	/**
@@ -55,6 +56,9 @@ public class UserServiceController {
 		return BaseResponsePack.simpleSuccess(userInfoService.getRecentTest(tel));
 	}
 
+	/**
+	 * 测试网络。
+	 */
 	@GetMapping("test")
 	public BaseResponsePack test(@RequestParam String num) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -71,6 +75,9 @@ public class UserServiceController {
 		return BaseResponsePack.simpleSuccess(userInfo.toSafeMap());
 	}
 
+	/**
+	 * 签到
+	 */
 	@PostMapping("sign")
 	public BaseResponsePack sign() {
 		String tel = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

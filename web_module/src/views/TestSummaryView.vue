@@ -103,7 +103,7 @@ const userInfo = reactive({
 function loadTestInfo() {
   test.testId = location.pathname.split('/')[2];
   testUserInfo.testId = test.testId;
-  axios.get('getTestInfo?testId=' + test.testId, {baseURL: TEST_BASE_URL})
+  axios.get('/test/getTestInfo?testId=' + test.testId, {baseURL: TEST_BASE_URL})
       .then(response => {
         if (response.data.status === 0) {
           test.testId = response.data.object.testId;
@@ -146,7 +146,7 @@ function formatDate(timeStamp) {
 
 //获取用户答题信息
 function loadTestUserResult() {
-  axios.get('/getTestUserResult', {
+  axios.get('/test/getTestUserResult', {
     params: {userId: userInfo.userId, testId: test.testId}
     , baseURL: TEST_BASE_URL
   })

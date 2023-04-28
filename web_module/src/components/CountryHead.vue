@@ -48,7 +48,7 @@ function checkToken() {
 
 //从服务器请求登录信息
 function updateUserInfo() {
-  axios.get('/userInfo', {
+  axios.get('/user/userInfo', {
     baseURL: USER_BASE_URL
   }).then(response => {
     if (response.data.status === 0) {
@@ -60,6 +60,7 @@ function updateUserInfo() {
         recentTest: response.data.object.recentTest
       }
       emit('updateUserInfo', loginUserInfo);
+      dialogFormVisible.value = false;
     } else if (response.data === 'invalid token') {
       //token无用，则清除无效 token
       localStorage.removeItem('country_token');

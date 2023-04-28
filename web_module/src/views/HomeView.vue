@@ -122,7 +122,7 @@ function updateUser(newUserInfo) {
   //获取每个 用户最近访问试卷的信息
   let recentTestId = JSON.parse(newUserInfo.recentTest);
   for (const testId of recentTestId) {
-    axios.get('getTestInfo?testId=' + testId, {baseURL: TEST_BASE_URL})
+    axios.get('/test/getTestInfo?testId=' + testId, {baseURL: TEST_BASE_URL})
         .then(response => {
           if (response.data.status === 0) {
             userInfo.recentTest.push({testId: testId, testName: response.data.object.testName});
@@ -144,7 +144,7 @@ function updateUser(newUserInfo) {
 //请求热门试卷
 axios.request({
   method: 'get',
-  url: '/hotTest',
+  url: '/test/hotTest',
   baseURL: TEST_BASE_URL
 })
     .then(response => {
@@ -196,7 +196,7 @@ const isTodaySigned = computed(() => {
 
 // 签到
 function sigh() {
-  axios.post('/sign', null, {baseURL: USER_BASE_URL})
+  axios.post('/user/sign', null, {baseURL: USER_BASE_URL})
       .then(response => {
         if (response.data.status === 0) {
           ElMessage({
