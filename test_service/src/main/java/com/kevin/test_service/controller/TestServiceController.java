@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/test")
-@CrossOrigin
 public class TestServiceController {
 	HotTestService hotTestService;
 	TestInfoService testInfoService;

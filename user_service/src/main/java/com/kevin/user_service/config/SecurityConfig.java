@@ -14,12 +14,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.PrintWriter;
-import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -58,7 +54,7 @@ public class SecurityConfig {
 				//禁用session
 				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				//解决 CORS 问题
-				.and().cors().configurationSource(corsConfigurationSource())
+//				.and().cors().configurationSource(corsConfigurationSource())
 				.and().csrf().disable()
 				//拦截器链中，把 手机号认证过滤器 加到 UsernamePasswordAuthenticationFilter 之后
 				.addFilterAfter(veriCodeAuthenticationFilter(httpSecurity), UsernamePasswordAuthenticationFilter.class)
@@ -78,16 +74,16 @@ public class SecurityConfig {
 	/**
 	 * 解决 cors 同源问题
 	 */
-	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Collections.singletonList("*"));
-		configuration.setAllowedMethods(Collections.singletonList("*"));
-		configuration.setAllowedHeaders(Collections.singletonList("*"));
-
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-	}
+//	public CorsConfigurationSource corsConfigurationSource() {
+//		CorsConfiguration configuration = new CorsConfiguration();
+//		configuration.setAllowedOrigins(Collections.singletonList("*"));
+//		configuration.setAllowedMethods(Collections.singletonList("*"));
+//		configuration.setAllowedHeaders(Collections.singletonList("*"));
+//
+//		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//		source.registerCorsConfiguration("/**", configuration);
+//		return source;
+//	}
 
 
 	/**

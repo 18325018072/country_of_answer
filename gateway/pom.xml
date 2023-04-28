@@ -39,12 +39,12 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- gateway -->
+        <!-- S-gateway -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-gateway</artifactId>
         </dependency>
-        <!-- loadbalancer -->
+        <!-- S-loadbalancer -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-loadbalancer</artifactId>

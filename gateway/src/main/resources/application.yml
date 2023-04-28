@@ -5,14 +5,24 @@ spring:
     nacos:
       server-addr: localhost:8848
     gateway:
+      globalcors: # 全局的跨域处理
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
       routes:
-        - id: 1  # 一条路由规则的 id
+        - id: route1  # 一条路由规则的 id
           uri: lb://country-user    # 路由的目标地址 lb就是负载均衡，后面跟服务名称
           predicates: # 路由断言
             - Path=/user/**
-        - id: 2
+        - id: route2
           uri: lb://country-test
           predicates:
             - Path=/test/**
+        - id: route3
+          uri: lb://country-user
+          predicates:
+            - Path=/login/**
   application:
     name: country-gateway
