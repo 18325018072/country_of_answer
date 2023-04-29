@@ -1,6 +1,8 @@
-package service;
+package com.kevin.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kevin.pojo.BaseResponsePack;
+import com.kevin.pojo.TestUserResult;
 import org.apache.rocketmq.client.apis.ClientConfiguration;
 import org.apache.rocketmq.client.apis.ClientConfigurationBuilder;
 import org.apache.rocketmq.client.apis.ClientException;
@@ -10,15 +12,9 @@ import org.apache.rocketmq.client.apis.producer.Producer;
 import org.apache.rocketmq.client.apis.producer.SendReceipt;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import pojo.BaseResponsePack;
-import pojo.TestUserResult;
 
 @Service
 public class MqProducerService {
-
-	@Value("${custom.broker-addr}")
-	String endpoint;
-
 	public static final String TEST_TOPIC = "test";
 	public static final String SUBMIT_TAG = "submit";
 
@@ -27,7 +23,7 @@ public class MqProducerService {
 	ClientServiceProvider provider = ClientServiceProvider.loadService();
 	ObjectMapper objectMapper = new ObjectMapper();
 
-	public MqProducerService() {
+	public MqProducerService(@Value("${custom.broker-addr}") String endpoint) {
 		// 配置 provider 的目的地
 		ClientConfigurationBuilder builder = ClientConfiguration.newBuilder().setEndpoints(endpoint);
 		ClientConfiguration configuration = builder.build();
@@ -54,6 +50,7 @@ public class MqProducerService {
 					.build();
 			// 发送消息，需要关注发送结果，并捕获失败等异常。
 			SendReceipt sendReceipt = testProducer.send(message);
+			System.out.println("发送成功");
 			return BaseResponsePack.simpleSuccess();
 		} catch (Exception e) {
 			return BaseResponsePack.simpleFail("Failed to send message: " + e.getMessage());

@@ -13,4 +13,9 @@ public interface TestUserResultService extends IService<TestUserResult> {
 	 * 提交试卷
 	 */
 	void submitAnswer(TestUserResult testUserResult);
+
+	/**
+	 * 用于测试提交试卷。提交后，用户试卷状态为已批改，尝试次数为2。
+	 */
+	void testSubmitAnswer(TestUserResult testUserResult);
 }

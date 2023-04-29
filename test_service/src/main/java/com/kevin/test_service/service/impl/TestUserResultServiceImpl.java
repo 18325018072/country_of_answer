@@ -22,6 +22,7 @@ public class TestUserResultServiceImpl extends ServiceImpl<TestUserResultMapper,
 	 */
 	@Override
 	public void submitAnswer(TestUserResult testUserResult) {
+		System.out.println("submitAnswer执行了");
 		//获取用户答题信息
 		QueryWrapper<TestUserResult> wrapper = new QueryWrapper<>();
 		wrapper.eq("test_id", testUserResult.getTestId());
@@ -40,6 +41,34 @@ public class TestUserResultServiceImpl extends ServiceImpl<TestUserResultMapper,
 			updateWrapper.set("user_comprehension_answer", testUserResult.getUserComprehensionAnswer());
 			updateWrapper.set("try_time", oldResult.getTryTime() + 1);
 			updateWrapper.set("is_scoring", 0);
+			update(updateWrapper);
+		}
+	}
+
+	/**
+	 * 用于测试提交试卷。提交后，用户试卷状态为已批改，尝试次数为2。
+	 */
+	@Override
+	public void testSubmitAnswer(TestUserResult testUserResult) {
+		System.out.println("testSubmitAnswer执行了");
+		//获取用户答题信息
+		QueryWrapper<TestUserResult> wrapper = new QueryWrapper<>();
+		wrapper.eq("test_id", testUserResult.getTestId());
+		wrapper.eq("user_id", testUserResult.getUserId());
+		TestUserResult oldResult = getOne(wrapper);
+		if (oldResult == null) {
+			//创建用户答题信息
+			testUserResult.setTryTime(2);
+			testUserResult.setIsScoring(1);
+			save(testUserResult);
+		} else {
+			UpdateWrapper<TestUserResult> updateWrapper = new UpdateWrapper<>(oldResult);
+			updateWrapper.set("user_select_answer", testUserResult.getUserSelectAnswer());
+			updateWrapper.set("user_judge_answer", testUserResult.getUserJudgeAnswer());
+			updateWrapper.set("user_complete_answer", testUserResult.getUserCompleteAnswer());
+			updateWrapper.set("user_comprehension_answer", testUserResult.getUserComprehensionAnswer());
+			updateWrapper.set("try_time", 2);
+			updateWrapper.set("is_scoring", 1);
 			update(updateWrapper);
 		}
 	}

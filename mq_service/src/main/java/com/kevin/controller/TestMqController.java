@@ -1,13 +1,13 @@
-package controller;
+package com.kevin.controller;
 
+import com.kevin.pojo.BaseResponsePack;
+import com.kevin.pojo.TestUserResult;
+import com.kevin.service.MqProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pojo.BaseResponsePack;
-import pojo.TestUserResult;
-import service.MqProducerService;
 
 @RequestMapping("/test")
 @RestController

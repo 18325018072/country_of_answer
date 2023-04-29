@@ -13,14 +13,18 @@ spring:
             allowedHeaders: "*"
       routes:
         - id: route1
+          uri: lb://country-mq
+          predicates:
+            - Path=/test/submitAnswer
+        - id: route2
           uri: lb://country-user
           predicates:
             - Path=/user/**
-        - id: route2
+        - id: route3
           uri: lb://country-test
           predicates:
             - Path=/test/**
-        - id: route3
+        - id: route4
           uri: lb://country-user
           predicates:
             - Path=/login/**

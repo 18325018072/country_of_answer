@@ -1,5 +1,5 @@
 custom:
-  broker-addr: 192.168.0.110    #接入点地址，需要设置成Proxy的地址和端口列表，一般是xxx:8081;xxx:8081。
+  broker-addr: 192.168.119.132:8081    #接入点地址，需要设置成Proxy的地址和端口列表，一般是xxx:8081;xxx:8081。
 server:
   port: 7020
 spring:
