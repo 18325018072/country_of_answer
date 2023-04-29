@@ -1,0 +1,28 @@
+server:
+  port: 10010
+spring:
+  cloud:
+    nacos:
+      server-addr: localhost:8848
+    gateway:
+      globalcors: # 全局的跨域处理
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+      routes:
+        - id: route1
+          uri: lb://country-user
+          predicates:
+            - Path=/user/**
+        - id: route2
+          uri: lb://country-test
+          predicates:
+            - Path=/test/**
+        - id: route3
+          uri: lb://country-user
+          predicates:
+            - Path=/login/**
+  application:
+    name: country-gateway
