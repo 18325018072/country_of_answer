@@ -168,6 +168,7 @@ function submitAnswer() {
       .then(response => {
         if (response.data.status === 0) {
           ElMessage({message: '提交成功', type: 'success'})
+          location.href = '/test/' + testInfo.testId + '/summary';
         } else {
           ElMessage({message: '提交失败', type: 'error'})
         }

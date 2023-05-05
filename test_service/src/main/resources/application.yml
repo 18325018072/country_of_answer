@@ -1,16 +1,18 @@
 custom:
-  local-ip: 192.168.119.132
+  test-ip: 192.168.119.132
+  test-port: 3308
+  test-mycat-port: 8066
   win-ip: 192.168.0.110
 spring:
   datasource:
-    url: jdbc:mysql://${custom.local-ip}:3308/country_user?serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://${custom.test-ip}:${custom.test-mycat-port}/country_test?serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false
     username: root
-    password: root
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
   application:
     name: country-test
   redis:
-    host: ${custom.local-ip}
+    host: ${custom.test-ip}
     port: 6380
     database: 0
     password: root

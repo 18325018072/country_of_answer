@@ -73,7 +73,7 @@
         <div class="content-box">
           <div class="box-title">热门讨论</div>
           <div id="text-list-box">
-            <a href="#" v-for="dis in discussions">
+            <a href="#" v-for="dis in discussions.data">
               <div>{{ dis.title }}</div>
             </a>
             <a href="#" v-if="discussions.length >= 4">更多...</a>
@@ -102,7 +102,8 @@ let hotTests = reactive({
 
 let discussions = reactive({
   data: [
-    {discussionId: '7536', title: '激发大学生创新创业意识'}
+    {discussionId: '7536', title: '激发大学生创新创业意识'},
+    {discussionId: '5113', title: '网络安全常用术语'}
   ]
 })
 
