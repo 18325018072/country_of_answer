@@ -1,6 +1,13 @@
+custom:
+  test-ip: 192.168.119.132
 server:
   port: 10010
 spring:
+  redis:
+    host: ${custom.test-ip}
+    port: 6380
+    database: 0
+    password: root
   cloud:
     nacos:
       server-addr: localhost:8848
@@ -24,6 +31,12 @@ spring:
           uri: lb://country-test
           predicates:
             - Path=/test/**
+          filters:
+            - name: RequestRateLimiter       #限流：令牌桶算法。每秒产生10，容量30
+              args:
+                key-resolver: '#{@hostAddrKeyResolver}'
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 30
         - id: route4
           uri: lb://country-user
           predicates:

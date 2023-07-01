@@ -31,7 +31,7 @@
             <el-button type="danger">开始</el-button>
           </a>
         </div>
-        <img src="src/assets/carousel3.png" class="intro-pic" alt="项目封面展示图"/>
+        <img src="src/assets/structure.png" class="intro-pic" alt="项目封面展示图"/>
       </el-main>
     </el-container>
   </div>
@@ -66,7 +66,7 @@ let centerDialogVisible = ref(false)
 }
 
 .intro-pic {
-  width: 300px;
-  height: 300px;
+  width: 900px;
+  /*height: 500px;*/
 }
 </style>

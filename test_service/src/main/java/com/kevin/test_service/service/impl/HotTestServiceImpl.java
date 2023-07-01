@@ -3,6 +3,7 @@ package com.kevin.test_service.service.impl;
 import com.kevin.test_service.pojo.TestInfo;
 import com.kevin.test_service.service.HotTestService;
 import com.kevin.test_service.service.TestInfoService;
+import com.kevin.test_service.util.StringConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,6 @@ import java.util.List;
  */
 @Service
 public class HotTestServiceImpl implements HotTestService {
-
-	public static final String REDIS_HOT_TEST_LIST = "hot_test_id_list";
 
 	TestInfoService testInfoService;
 	RedisTemplate<String, String> redisTemplate;
@@ -37,11 +36,11 @@ public class HotTestServiceImpl implements HotTestService {
 	@Override
 	public List<TestInfo> getHotTestInfo() {
 		//从 redis 查询热门试卷
-		Long size = redisTemplate.opsForList().size(REDIS_HOT_TEST_LIST);
+		Long size = redisTemplate.opsForList().size(StringConstant.REDIS_HOT_TEST_LIST);
 		if (size == null) {
 			return null;
 		}
-		List<String> hotTestIdList = redisTemplate.opsForList().leftPop(REDIS_HOT_TEST_LIST, size);
+		List<String> hotTestIdList = redisTemplate.opsForList().leftPop(StringConstant.REDIS_HOT_TEST_LIST, size);
 		if (hotTestIdList == null) {
 			return null;
 		}

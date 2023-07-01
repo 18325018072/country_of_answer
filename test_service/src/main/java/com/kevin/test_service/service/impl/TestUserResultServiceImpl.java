@@ -22,7 +22,6 @@ public class TestUserResultServiceImpl extends ServiceImpl<TestUserResultMapper,
 	 */
 	@Override
 	public void submitAnswer(TestUserResult testUserResult) {
-		System.out.println("submitAnswer执行了");
 		//获取用户答题信息
 		QueryWrapper<TestUserResult> wrapper = new QueryWrapper<>();
 		wrapper.eq("test_id", testUserResult.getTestId());
@@ -50,7 +49,6 @@ public class TestUserResultServiceImpl extends ServiceImpl<TestUserResultMapper,
 	 */
 	@Override
 	public void testSubmitAnswer(TestUserResult testUserResult) {
-		System.out.println("testSubmitAnswer执行了");
 		//获取用户答题信息
 		QueryWrapper<TestUserResult> wrapper = new QueryWrapper<>();
 		wrapper.eq("test_id", testUserResult.getTestId());

@@ -53,8 +53,6 @@ public class SecurityConfig {
 				.anyRequest().authenticated()
 				//禁用session
 				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-				//解决 CORS 问题
-//				.and().cors().configurationSource(corsConfigurationSource())
 				.and().csrf().disable()
 				//拦截器链中，把 手机号认证过滤器 加到 UsernamePasswordAuthenticationFilter 之后
 				.addFilterAfter(veriCodeAuthenticationFilter(httpSecurity), UsernamePasswordAuthenticationFilter.class)
@@ -70,20 +68,6 @@ public class SecurityConfig {
 				})
 				.and().build();
 	}
-
-	/**
-	 * 解决 cors 同源问题
-	 */
-//	public CorsConfigurationSource corsConfigurationSource() {
-//		CorsConfiguration configuration = new CorsConfiguration();
-//		configuration.setAllowedOrigins(Collections.singletonList("*"));
-//		configuration.setAllowedMethods(Collections.singletonList("*"));
-//		configuration.setAllowedHeaders(Collections.singletonList("*"));
-//
-//		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//		source.registerCorsConfiguration("/**", configuration);
-//		return source;
-//	}
 
 
 	/**
