@@ -1,0 +1,13 @@
+docker：
+docker run --name mysql1 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -v /home/kevin/mysql/log:/var/log/mysql -v /home/kevin/mysql/data:/var/lib/mysql -v /home/kevin/mysql/conf:/etc/mysql/conf.d -d --privileged=true --restart=always mysql
+docker run --name redis6379 -d  -p 6379:6379 -v /home/kevin/myRedisData/redis6379/conf:/usr/local/etc/redis  -v /home/kevin/myRedisData/redis6379/data:/data  redis
+
+
+RocketMQ：
+cd /home/kevin/myMqData/rocketmq-all-5.1.0-bin-release/conf/
+vim broker.conf
+cd ../bin/mqnamesrv
+./mqshutdown namesrv
+nohup sh bin/mqnamesrv &
+nohup sh bin/mqbroker -n localhost:9876 --enable-proxy
+./mqadmin updatetopic -n localhost:9876 -t TestTopic -c DefaultCluster

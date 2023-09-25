@@ -1,0 +1,21 @@
+docker：
+docker run --name mysql3306 -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -v /home/kevin/mysql/mysql3306/log:/var/log/mysql -v /home/kevin/mysql/mysql3306/data:/var/lib/mysql -v /home/kevin/mysql/mysql3306/conf:/etc/mysql/conf.d -d --privileged=true --restart=always mysql
+docker run --name redis6379 -d  -p 6379:6379 -v /home/kevin/myRedisData/redis6379/conf:/usr/local/etc/redis  -v /home/kevin/myRedisData/redis6379/data:/data  redis
+
+
+RocketMQ：
+cd /home/kevin/myMqData/rocketmq-all-5.1.0-bin-release/conf/
+vim broker.conf
+cd ../bin/mqnamesrv
+./mqshutdown namesrv
+nohup sh bin/mqnamesrv &
+nohup sh bin/mqbroker -n localhost:9876 --enable-proxy
+./mqadmin updatetopic -n localhost:9876 -t TestTopic -c DefaultCluster
+
+ vim /usr/lib/systemd/system/docker.service
+
+firewall-cmd --zone=public --add-port=8081/tcp --permanent
+firewall-cmd --zone=public --add-port=10911/tcp --permanent
+firewall-cmd --zone=public --add-port=2375/tcp --permanent
+firewall-cmd --add-port=7001/tcp --permanent
+firewall-cmd --reload

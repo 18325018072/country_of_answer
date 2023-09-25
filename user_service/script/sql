@@ -1,0 +1,10 @@
+create table user_info
+(
+    user_id      int auto_increment
+        primary key,
+    user_name    char(20)                  not null,
+    tel          char(20)                  null,
+    sign_history varchar(100) default '[]' not null,
+    recent_test  varchar(60)  default '[]' not null
+);
+

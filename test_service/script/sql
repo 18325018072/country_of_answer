@@ -1,0 +1,58 @@
+create table test_answer
+(
+    test_id              int           null,
+    select_answer        varchar(100)  null,
+    judge_answer         varchar(100)  null,
+    complete_answer      varchar(300)  null,
+    comprehension_answer varchar(1000) null
+);
+
+create table test_info
+(
+    test_id     int          null,
+    test_name   char(30)     null,
+    description varchar(200) null,
+    publisher   char(10)     null,
+    status      char(7)      null,
+    try_limit   smallint     null,
+    open_time   timestamp    null,
+    end_time    timestamp    null,
+    difficulty  char(6)      null,
+    study_num   int          null
+);
+
+create table test_questions
+(
+    test_id                 int           null,
+    select_questions        varchar(1000) null,
+    judge_questions         varchar(1000) null,
+    complete_questions      varchar(1000) null,
+    comprehension_questions varchar(1000) null
+);
+
+create table test_user_result
+(
+    result_id                 int auto_increment
+        primary key,
+    test_id                   int           null,
+    user_id                   int           null,
+    user_select_answer        varchar(100)  null,
+    user_judge_answer         varchar(100)  null,
+    user_complete_answer      varchar(300)  null,
+    user_comprehension_answer varchar(1000) null,
+    result_details            varchar(300)  null,
+    try_time                  int           null,
+    last_grade                int           null,
+    best_grade                int           null,
+    is_scoring                tinyint       null
+);
+
+create table user_info
+(
+    user_id      int          null,
+    user_name    char(20)     null,
+    tel          char(20)     null,
+    sign_history varchar(100) null,
+    recent_test  varchar(60)  null
+);
+

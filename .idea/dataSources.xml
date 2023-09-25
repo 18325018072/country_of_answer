@@ -5,7 +5,7 @@
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://192.168.119.132:3308</jdbc-url>
+      <jdbc-url>jdbc:mysql://192.168.209.129:3308</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
     <data-source source="LOCAL" name="132-6380-test" uuid="467e99fb-a39e-4ce1-b84e-48e50022d4b2">
@@ -19,7 +19,7 @@
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://192.168.119.133:3308</jdbc-url>
+      <jdbc-url>jdbc:mysql://192.168.156.148:3308</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
     <data-source source="LOCAL" name="133-6380-user" uuid="690576cd-b820-410e-bd82-21065b4fc518">

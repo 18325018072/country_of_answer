@@ -1,17 +1,22 @@
 package com.kevin.user_service.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map;
 
 /**
@@ -20,6 +25,7 @@ import java.util.Map;
  * 2. 提取登录凭证，封装到 Token 中。
  * 3.调用 AuthenticationManager 的 authenticated 方法来认证 Token。
  */
+@Component
 public class VeriCodeAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
 	/**
@@ -34,8 +40,20 @@ public class VeriCodeAuthenticationFilter extends AbstractAuthenticationProcessi
 	private static final String TEL_PARAMETER = "tel";
 	private static final String CODE_PARAMETER = "verificationCode";
 
-	public VeriCodeAuthenticationFilter() {
+	@Autowired
+	public VeriCodeAuthenticationFilter(AuthenticationManager manager, AuthenticationSuccessHandler successHandler) {
 		super(VERI_CODE_MATCHER);
+		//认证使用
+		setAuthenticationManager(manager);
+		//设置登陆成功，返回json
+		setAuthenticationSuccessHandler(successHandler);
+		//设置登陆失败返回值是json
+		setAuthenticationFailureHandler((request, response, exception) -> {
+			response.setContentType("text/html;charset=utf-8");
+			PrintWriter writer = response.getWriter();
+			writer.write("手机登陆失败：" + exception.getMessage());
+			writer.close();
+		});
 	}
 
 	/**

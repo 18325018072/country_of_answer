@@ -1,10 +1,8 @@
 package com.kevin.user_service.config;
 
 import com.kevin.user_service.security.JwtAuthenticationTokenFilter;
-import com.kevin.user_service.security.MyAuthSuccessHandler;
 import com.kevin.user_service.security.VeriCodeAuthenticationFilter;
 import com.kevin.user_service.security.VeriCodeAuthenticationProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,32 +19,18 @@ import java.io.PrintWriter;
 @EnableWebSecurity
 public class SecurityConfig {
 
-	MyAuthSuccessHandler myAuthSuccessHandler;
-
-	VeriCodeAuthenticationProvider veriCodeAuthenticationProvider;
-
-	JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
-
 	/**
 	 * 定义SpringSecurity不需要拦截的url
 	 */
 	private static final String[] URL_ACCESS_WHITELISTS = {"/user/verify", "/user/login"};
 
-	@Autowired
-	public SecurityConfig(JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter
-			, MyAuthSuccessHandler myAuthSuccessHandler, VeriCodeAuthenticationProvider veriCodeAuthenticationProvider) {
-		this.jwtAuthenticationTokenFilter = jwtAuthenticationTokenFilter;
-		this.myAuthSuccessHandler = myAuthSuccessHandler;
-		this.veriCodeAuthenticationProvider = veriCodeAuthenticationProvider;
-	}
-
 	/**
 	 * 配置 HttpSecurity:访问限制、登录、登出
 	 */
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.headers().cacheControl();
-		return httpSecurity.authorizeRequests()
+	public SecurityFilterChain filterChain(HttpSecurity httpSecurity, VeriCodeAuthenticationFilter veriCodeAuthenticationFilter, JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter) throws Exception {
+		return httpSecurity.headers().cacheControl().and()
+				.and().authorizeRequests()
 				//允许所有人请求验证码和登录
 				.antMatchers(URL_ACCESS_WHITELISTS).permitAll()
 				//除了”请求验证码和登录“外，其他请求都需要认证
@@ -55,7 +39,7 @@ public class SecurityConfig {
 				.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				.and().csrf().disable()
 				//拦截器链中，把 手机号认证过滤器 加到 UsernamePasswordAuthenticationFilter 之后
-				.addFilterAfter(veriCodeAuthenticationFilter(httpSecurity), UsernamePasswordAuthenticationFilter.class)
+				.addFilterAfter(veriCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class)
 //				.authenticationProvider(veriCodeAuthenticationProvider)
 				//设置未登录的响应
@@ -69,32 +53,11 @@ public class SecurityConfig {
 				.and().build();
 	}
 
-
-	/**
-	 * filter
-	 */
-	@Bean
-	public VeriCodeAuthenticationFilter veriCodeAuthenticationFilter(HttpSecurity httpSecurity) throws Exception {
-		VeriCodeAuthenticationFilter filter = new VeriCodeAuthenticationFilter();
-		//认证使用
-		filter.setAuthenticationManager(authenticationManager(httpSecurity));
-		//设置登陆成功，返回json
-		filter.setAuthenticationSuccessHandler(myAuthSuccessHandler);
-		//设置登陆失败返回值是json
-		filter.setAuthenticationFailureHandler((request, response, exception) -> {
-			response.setContentType("text/html;charset=utf-8");
-			PrintWriter writer = response.getWriter();
-			writer.write("手机登陆失败：" + exception.getMessage());
-			writer.close();
-		});
-		return filter;
-	}
-
 	/**
 	 * Manager
 	 */
 	@Bean
-	AuthenticationManager authenticationManager(HttpSecurity httpSecurity) throws Exception {
+	AuthenticationManager authenticationManager(HttpSecurity httpSecurity, VeriCodeAuthenticationProvider veriCodeAuthenticationProvider) throws Exception {
 		return httpSecurity.getSharedObject(AuthenticationManagerBuilder.class)
 				.authenticationProvider(veriCodeAuthenticationProvider).build();
 	}
